@@ -1,0 +1,4 @@
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.csproj.AssemblyReference.cache
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UserControl2.g.cs
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1_MarkupCompile.cache
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1_MarkupCompile.lref
