@@ -9,21 +9,46 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using Autodesk.Revit.DB.Architecture;
+using ClassLibrary1;
+using System.Windows;
+
 namespace SegundaBiblioteca
 {
-    [Transaction(TransactionMode.Manual)]
-    [Regeneration(RegenerationOption.Manual)]
-    public class Class1 : IExternalCommand
+    public class ComandoTags : IExternalEventHandler
     {
-        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        public ExternalEvent cTags;
+
+
+        // Constructor
+        private ComandoTags()
         {
-            //Get application and document objects
-            UIApplication uiapp = commandData.Application;
-            Document doc = uiapp.ActiveUIDocument.Document;
-            
+        }
 
+        public static object GetInstance { get; internal set; }
 
-            return Result.Succeeded;
+        public void Execute(UIApplication app)
+        {
+
+            // Aqui dentro é executado a lógica do programa
+            UserControl2 JanelaRevit = new UserControl2();
+            JanelaRevit.Show();
+
+        }
+
+        public string GetName()
+        {
+            return "Comando Tags";
         }
     }
+
+    internal class TagsDisponiveis
+    {
+        // TagsDisponiveis JanelaRevit = new TagsDisponiveis();
+        public void JanelaRevit(object sender, EventArgs e)
+        {
+            MessageBox.Show("Testando Janela");
+            return;
+        }
+    }
+
 }

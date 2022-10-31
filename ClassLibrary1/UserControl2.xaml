@@ -5,8 +5,19 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ClassLibrary1"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="350" d:DesignWidth="500"
+             x:Name="JanelaPlugin">
     <Grid Background="White">
-        <Button  x:Name="Exibir" Width="80" Height="50" Click="Button_Click">EXIBIR</Button>
+        <Button  x:Name="Exibir" Width="80" Height="50" VerticalAlignment="Top" Click="Button_Click" Margin="360,94,360,0">EXIBIR</Button>
+        <TextBlock x:Name="Texto" HorizontalAlignment="Center" Visibility="Hidden" >Conteudo</TextBlock>
+        <ComboBox Width="200" Height="60" Background="Aqua" Margin="-300,0,0,0">
+            <ComboBoxItem Width="198" Height="20" >Alguma coisa 1</ComboBoxItem>
+            <ComboBoxItem Width="198" Height="20" >Alguma coisa 2</ComboBoxItem>
+            <ComboBoxItem Width="198" Height="20" >Alguma coisa 3</ComboBoxItem>
+            <ComboBoxItem Width="198" Height="20" >Alguma coisa 4</ComboBoxItem>
+
+
+        </ComboBox>
+
     </Grid>
 </Window>
