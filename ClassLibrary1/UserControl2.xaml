@@ -10,11 +10,8 @@
     <Grid Background="White">
         <Button  x:Name="Exibir" Width="80" Height="50" VerticalAlignment="Top" Click="Button_Click" Margin="360,94,360,0">EXIBIR</Button>
         <TextBlock x:Name="Texto" HorizontalAlignment="Center" Visibility="Hidden" >Conteudo</TextBlock>
-        <ComboBox Width="200" Height="60" Background="Aqua" Margin="-300,0,0,0">
-            <ComboBoxItem Width="198" Height="20" >Alguma coisa 1</ComboBoxItem>
-            <ComboBoxItem Width="198" Height="20" >Alguma coisa 2</ComboBoxItem>
-            <ComboBoxItem Width="198" Height="20" >Alguma coisa 3</ComboBoxItem>
-            <ComboBoxItem Width="198" Height="20" >Alguma coisa 4</ComboBoxItem>
+        <ComboBox  x:Name="ComboLista" Width="200" Height="30" Background="Aqua" Margin="-300,0,0,0">
+            
 
 
         </ComboBox>

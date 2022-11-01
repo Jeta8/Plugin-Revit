@@ -1,9 +1,11 @@
 ﻿
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
 using SegundaBiblioteca;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,19 +37,64 @@ namespace ClassLibrary1
         {
             InitializeComponent();
             Doc = doc;
+
+            VerificarSistemas();
         }
 
+        public void VerificarSistemas()
+        {
+            ICollection<Element> tubulacoes =
+                 new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
+
+
+
+
+            IList<string> NomesAdicionados = new List<string>();
+
+            foreach (Element i in tubulacoes)
+            {
+                Parameter p = i.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+                if (p != null && p.AsValueString() != null)
+                {
+
+                    {
+                        if (!NomesAdicionados.Contains(p.AsValueString()))
+                        {
+                            ComboLista.Items.Add(p.AsValueString());
+                            NomesAdicionados.Add(p.AsValueString());
+                        }
+
+                    }
+                }
+            }
+        }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             ICollection<ElementId> tubulacoes =
-                new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElementIds();
-            TaskDialog.Show("Quantidade de tubulações: ", tubulacoes.Count.ToString());
-
-            ICollection<ElementId> sistemas =
-                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_SwitchSystem).ToElementIds();
-            TaskDialog.Show("Sistema", sistemas.Count.ToString());
+               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElementIds();
+            if() // Verificar o sistema selecionado e selecionar apenas as tubulações correspondentes
             Doc.Selection.SetElementIds(tubulacoes);
-            
         }
+
+        //private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    if (ComboLista.SelectedItem != null)
+
+        //    try
+        //    {
+        //        IList<string> ListaTipos = new List<string>();
+
+        //        foreach (Element cSistemas in TiposSistemas)
+        //        {
+        //            ListaTipos.Add(cSistemas.Name);
+        //        }
+        //        ComboLista.DataContext = ListaTipos;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        TaskDialog.Show("Error", ex.ToString());
+        //    }
+
+        //}
     }
 }
