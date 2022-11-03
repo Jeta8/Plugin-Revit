@@ -7,14 +7,46 @@
              mc:Ignorable="d" 
              d:DesignHeight="350" d:DesignWidth="500"
              x:Name="JanelaPlugin">
+
+    <Window.Resources>
+        <Style x:Key="placeHolder" TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <Grid>
+                            <TextBox Text="{Binding Path=Text,
+                                                RelativeSource={RelativeSource TemplatedParent}, 
+                                                Mode=TwoWay,
+                                                UpdateSourceTrigger=PropertyChanged}"
+                                 x:Name="textSource" 
+                                 Background="Transparent" 
+                                 Panel.ZIndex="2" />
+                            <TextBox Text="{TemplateBinding Tag}" Background="{TemplateBinding Background}" Panel.ZIndex="1">
+                                <TextBox.Style>
+                                    <Style TargetType="{x:Type TextBox}">
+                                        <Setter Property="Foreground" Value="Transparent"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Path=Text, Source={x:Reference textSource}}" Value="">
+                                                <Setter Property="Foreground" Value="Gray"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    
+    
     <Grid Background="White">
-        <Button  x:Name="Exibir" Width="80" Height="50" VerticalAlignment="Top" Click="Button_Click" Margin="360,94,360,0">EXIBIR</Button>
-        <TextBlock x:Name="Texto" HorizontalAlignment="Center" Visibility="Hidden" >Conteudo</TextBlock>
-        <ComboBox  x:Name="ComboLista" Width="200" Height="30" Background="Aqua" Margin="-300,0,0,0">
-            
 
-
-        </ComboBox>
+        <TextBox x:Name="InputComprimento" Width="200" Height="25" Margin="250,0,0,0" Style="{StaticResource placeHolder}" Tag="Demarcar Comprimento" TextChanged="InputComprimento_TextChanged" />
+        <ComboBox x:Name="ComboLista" Width="200" Height="25" Background="Aqua" Margin="0,0,250,0"/>
+        <Button  x:Name="SelecaoTubos" Width="130" Height="30" VerticalAlignment="Top" Visibility="Visible" Background="#dedfe0" Click="SelecaoT_Click" Margin="0,200,180,0" Content="Selecionar Sistema"/>
 
     </Grid>
 </Window>

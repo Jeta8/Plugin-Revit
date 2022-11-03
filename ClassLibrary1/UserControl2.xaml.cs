@@ -37,7 +37,6 @@ namespace ClassLibrary1
         {
             InitializeComponent();
             Doc = doc;
-
             VerificarSistemas();
         }
 
@@ -45,9 +44,6 @@ namespace ClassLibrary1
         {
             ICollection<Element> tubulacoes =
                  new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
-
-
-
 
             IList<string> NomesAdicionados = new List<string>();
 
@@ -68,13 +64,56 @@ namespace ClassLibrary1
                 }
             }
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
+
+
+
+        private void SelecaoT_Click(object sender, RoutedEventArgs e)
         {
-            ICollection<ElementId> tubulacoes =
-               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElementIds();
-            if() // Verificar o sistema selecionado e selecionar apenas as tubulações correspondentes
-            Doc.Selection.SetElementIds(tubulacoes);
+            ICollection<Element> tubulacoes =
+               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
+            // Verificar o sistema selecionado e selecionar apenas as tubulações correspondentes
+            IList<ElementId> SistemaSelecionado = new List<ElementId>();
+            foreach (Element t in tubulacoes)
+            {
+                Parameter Sistemas = t.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+                if (Sistemas != null && Sistemas.AsValueString() != null)
+                {
+                    if (Sistemas.AsValueString().Equals(ComboLista.SelectedItem.ToString()))
+                    {
+                        SistemaSelecionado.Add(t.Id);
+                    }
+                }
+            }
+            Doc.Selection.SetElementIds(SistemaSelecionado);
         }
+
+        //public class ComprimentoInput
+        //{
+        //    public double Valor { get; set; }
+        //}
+     
+
+        private void InputComprimento_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            
+            IList<Element> SistemaSelecionado = new List<Element>();
+
+            foreach (Element unidade in SistemaSelecionado)
+            {
+                Parameter Comprimento = unidade.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
+                if (Comprimento != null && Comprimento.AsValueString() != null)
+                {
+
+                    if (Comprimento.AsDouble() < InputComprimento.ToString(); Comprimento - Inp; )
+                }
+            }
+        }
+
+
+
+
+
+
 
         //private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         //{
