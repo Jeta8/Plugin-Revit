@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -73,46 +75,52 @@ namespace ClassLibrary1
                new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
             // Verificar o sistema selecionado e selecionar apenas as tubulações correspondentes
             IList<ElementId> SistemaSelecionado = new List<ElementId>();
+            
             foreach (Element t in tubulacoes)
             {
                 Parameter Sistemas = t.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
                 if (Sistemas != null && Sistemas.AsValueString() != null)
                 {
+                    Parameter Comprimento = t.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
+                   
                     if (Sistemas.AsValueString().Equals(ComboLista.SelectedItem.ToString()))
-                    {
-                        SistemaSelecionado.Add(t.Id);
+                    {                     
+                        if (Comprimento != null)
+                        {
+                            double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
+                            
+                            if (ValorComprimento >= ValorUsuario)
+                            {
+                                SistemaSelecionado.Add(t.Id);
+                            }
+                        }
                     }
                 }
             }
             Doc.Selection.SetElementIds(SistemaSelecionado);
         }
 
-        //public class ComprimentoInput
-        //{
-        //    public double Valor { get; set; }
-        //}
-     
-
+        double ValorUsuario = 0;
         private void InputComprimento_TextChanged(object sender, TextChangedEventArgs e)
         {
-            
-            IList<Element> SistemaSelecionado = new List<Element>();
-
-            foreach (Element unidade in SistemaSelecionado)
+            if (InputComprimento.Text != "")
             {
-                Parameter Comprimento = unidade.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
-                if (Comprimento != null && Comprimento.AsValueString() != null)
+                try
                 {
-
-                    if (Comprimento.AsDouble() < InputComprimento.ToString(); Comprimento - Inp; )
-                }
+                    ValorUsuario = Convert.ToDouble(InputComprimento.Text);
+                }catch(Exception)
+                {
+                    ValorUsuario = 0;
+                    InputComprimento.Text = "";
+                }     
             }
         }
 
-
-
-
-
+        private void InputComprimento_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9,]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
 
 
         //private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -135,5 +143,8 @@ namespace ClassLibrary1
         //    }
 
         //}
+
+
     }
+
 }

@@ -44,7 +44,7 @@
     
     <Grid Background="White">
 
-        <TextBox x:Name="InputComprimento" Width="200" Height="25" Margin="250,0,0,0" Style="{StaticResource placeHolder}" Tag="Demarcar Comprimento" TextChanged="InputComprimento_TextChanged" />
+        <TextBox x:Name="InputComprimento" Width="200" Height="25" Margin="250,0,0,0" Style="{StaticResource placeHolder}" Tag="Demarcar Comprimento" TextChanged="InputComprimento_TextChanged" PreviewTextInput="InputComprimento_PreviewTextInput" />
         <ComboBox x:Name="ComboLista" Width="200" Height="25" Background="Aqua" Margin="0,0,250,0"/>
         <Button  x:Name="SelecaoTubos" Width="130" Height="30" VerticalAlignment="Top" Visibility="Visible" Background="#dedfe0" Click="SelecaoT_Click" Margin="0,200,180,0" Content="Selecionar Sistema"/>
 
