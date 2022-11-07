@@ -4,8 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ClassLibrary1"
-             mc:Ignorable="d" 
-             d:DesignHeight="350" d:DesignWidth="500"
+             mc:Ignorable="d"          
+             Width="500"
+             Height="350"
              x:Name="JanelaPlugin">
 
     <Window.Resources>
@@ -39,14 +40,15 @@
             </Setter>
         </Style>
     </Window.Resources>
-    
-    
-    
+
+
+
     <Grid Background="White">
 
         <TextBox x:Name="InputComprimento" Width="200" Height="25" Margin="250,0,0,0" Style="{StaticResource placeHolder}" Tag="Demarcar Comprimento" TextChanged="InputComprimento_TextChanged" PreviewTextInput="InputComprimento_PreviewTextInput" />
         <ComboBox x:Name="ComboLista" Width="200" Height="25" Background="Aqua" Margin="0,0,250,0"/>
-        <Button  x:Name="SelecaoTubos" Width="130" Height="30" VerticalAlignment="Top" Visibility="Visible" Background="#dedfe0" Click="SelecaoT_Click" Margin="0,200,180,0" Content="Selecionar Sistema"/>
-
+        <ComboBox x:Name="ComboListaTags" Width="200" Height="25" Background="Aqua" Margin="0,80,250,0"/>
+        <Button  x:Name="SelecaoTubos" Width="130" Height="30" VerticalAlignment="Top" Visibility="Visible" Background="#dedfe0" Click="SelecaoT_Click" Margin="0,240,180,0" Content="Selecionar Sistema"/>
+        <Button x:Name="AdicionarTags" Width="130" Height="30" VerticalAlignment="Top" Margin="185,200,0,0" Content="Adicionar Tag" Click="AdicionarTags_Click"/>
     </Grid>
 </Window>

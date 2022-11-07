@@ -47,11 +47,18 @@ namespace ClassLibrary1
             ICollection<Element> tubulacoes =
                  new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
 
+            ICollection<Element> identificadores = 
+                new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
+
             IList<string> NomesAdicionados = new List<string>();
+
+            IList<string> TagsAdicionados = new List<string>();
 
             foreach (Element i in tubulacoes)
             {
                 Parameter p = i.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+               
+                
                 if (p != null && p.AsValueString() != null)
                 {
 
@@ -64,6 +71,20 @@ namespace ClassLibrary1
 
                     }
                 }
+            }
+            foreach (Element g in identificadores)
+            {
+                Parameter t = g.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM);
+
+                if(t != null && t.AsValueString() != null)
+                {
+                    if (!TagsAdicionados.Contains(t.AsValueString()))
+                    {
+                        ComboListaTags.Items.Add(t.AsValueString());
+
+                    }
+                }
+                
             }
         }
 
@@ -120,6 +141,11 @@ namespace ClassLibrary1
         {
             Regex regex = new Regex("[^0-9,]+");
             e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void AdicionarTags_Click(object sender, RoutedEventArgs e)
+        {
+
         }
 
 
