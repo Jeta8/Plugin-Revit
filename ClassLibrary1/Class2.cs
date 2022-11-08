@@ -46,7 +46,7 @@ namespace SegundaBiblioteca
         // TagsDisponiveis JanelaRevit = new TagsDisponiveis();
         public void JanelaRevit(object sender, EventArgs e)
         {
-            MessageBox.Show("Testando Janela");
+            
             return;
         }
     }

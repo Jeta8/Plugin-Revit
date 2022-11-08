@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -15,12 +16,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+using Line = Autodesk.Revit.DB.Line;
 
 namespace ClassLibrary1
 {
@@ -48,7 +50,7 @@ namespace ClassLibrary1
                  new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
 
             ICollection<Element> identificadores =
-                new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
+                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
 
             IList<string> NomesAdicionados = new List<string>();
 
@@ -145,12 +147,32 @@ namespace ClassLibrary1
 
         private void AdicionarTags_Click(object sender, RoutedEventArgs e)
         {
-            ICollection<Element> Tags =
+
+           ICollection<Element> tubulacoes =
+               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
+           
+            var localzi = tubulacoes.First().Location as LocationCurve;
+            FamilySymbol jarro = null;
+            Line linha = localzi.Curve as Line;
+
+            if (localzi.Curve != null)
+            {
+
+            }
+
+           // FamilyInstance refer = Doc.Document.FamilyCreate.NewFamilyInstance(linha, jarro, Doc.Document.ActiveView);
+
+            //Reference reference;
+            ICollection <Element> Tags =
                  new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
             IList<Element> ListaTag = new List<Element>();
 
-
+           // IndependentTag tag = IndependentTag.Create(
+           //Doc, Doc.Document, new Reference(reference),
+           // false, TagMode.TM_ADDBY_CATEGORY,
+           //TagOrientation.Horizontal);
         }
+       // LEADER_LINE
 
 
         //private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
