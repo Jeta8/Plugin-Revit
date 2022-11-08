@@ -47,7 +47,7 @@ namespace ClassLibrary1
             ICollection<Element> tubulacoes =
                  new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
 
-            ICollection<Element> identificadores = 
+            ICollection<Element> identificadores =
                 new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
 
             IList<string> NomesAdicionados = new List<string>();
@@ -57,8 +57,8 @@ namespace ClassLibrary1
             foreach (Element i in tubulacoes)
             {
                 Parameter p = i.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-               
-                
+
+
                 if (p != null && p.AsValueString() != null)
                 {
 
@@ -76,18 +76,17 @@ namespace ClassLibrary1
             {
                 Parameter t = g.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM);
 
-                if(t != null && t.AsValueString() != null)
+                if (t != null && t.AsValueString() != null)
                 {
                     if (!TagsAdicionados.Contains(t.AsValueString()))
                     {
                         ComboListaTags.Items.Add(t.AsValueString());
-
+                        TagsAdicionados.Add(t.AsValueString());
                     }
                 }
-                
+
             }
         }
-
 
 
         private void SelecaoT_Click(object sender, RoutedEventArgs e)
@@ -96,20 +95,20 @@ namespace ClassLibrary1
                new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
             // Verificar o sistema selecionado e selecionar apenas as tubulações correspondentes
             IList<ElementId> SistemaSelecionado = new List<ElementId>();
-            
+
             foreach (Element t in tubulacoes)
             {
                 Parameter Sistemas = t.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
                 if (Sistemas != null && Sistemas.AsValueString() != null)
                 {
                     Parameter Comprimento = t.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
-                   
+
                     if (Sistemas.AsValueString().Equals(ComboLista.SelectedItem.ToString()))
-                    {                     
+                    {
                         if (Comprimento != null)
                         {
                             double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
-                            
+
                             if (ValorComprimento >= ValorUsuario)
                             {
                                 SistemaSelecionado.Add(t.Id);
@@ -129,11 +128,12 @@ namespace ClassLibrary1
                 try
                 {
                     ValorUsuario = Convert.ToDouble(InputComprimento.Text);
-                }catch(Exception)
+                }
+                catch (Exception)
                 {
                     ValorUsuario = 0;
                     InputComprimento.Text = "";
-                }     
+                }
             }
         }
 
@@ -145,6 +145,10 @@ namespace ClassLibrary1
 
         private void AdicionarTags_Click(object sender, RoutedEventArgs e)
         {
+            ICollection<Element> Tags =
+                 new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
+            IList<Element> ListaTag = new List<Element>();
+
 
         }
 
