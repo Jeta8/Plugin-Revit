@@ -19,6 +19,8 @@ namespace ClassLibrary1
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            ExternalEvent exComandoTags = ExternalEvent.Create(ComandoTags.GetInstance);
+            ComandoTags.GetInstance.cTags = exComandoTags;
 
             UIApplication uiapp = commandData.Application;
             UserControl2 janela = new UserControl2(uiapp.ActiveUIDocument);

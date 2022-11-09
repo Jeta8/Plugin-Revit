@@ -22,6 +22,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 using Line = Autodesk.Revit.DB.Line;
 
 namespace ClassLibrary1
@@ -32,7 +33,7 @@ namespace ClassLibrary1
     public partial class UserControl2 : Window
     {
         UIDocument Doc;
-
+        public static string NomeTagSelecionada = "";
         public UserControl2()
         {
         }
@@ -147,32 +148,27 @@ namespace ClassLibrary1
 
         private void AdicionarTags_Click(object sender, RoutedEventArgs e)
         {
+            ComandoTags.GetInstance.cTags.Raise();
+            // SYMBOL_FAMILY_NAME_PARAM
+            //Line linha = localzi.Curve as Line;
+            //FamilySymbol simbol = simbolos.Element as FamilySymbol;
 
-           ICollection<Element> tubulacoes =
-               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
-           
-            var localzi = tubulacoes.First().Location as LocationCurve;
-            FamilySymbol jarro = null;
-            Line linha = localzi.Curve as Line;
+            //if (localzi.Curve != null)
+            //{
 
-            if (localzi.Curve != null)
-            {
+            //}
 
-            }
 
-           // FamilyInstance refer = Doc.Document.FamilyCreate.NewFamilyInstance(linha, jarro, Doc.Document.ActiveView);
-
-            //Reference reference;
-            ICollection <Element> Tags =
-                 new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
-            IList<Element> ListaTag = new List<Element>();
-
-           // IndependentTag tag = IndependentTag.Create(
-           //Doc, Doc.Document, new Reference(reference),
-           // false, TagMode.TM_ADDBY_CATEGORY,
-           //TagOrientation.Horizontal);
         }
-       // LEADER_LINE
+
+        private void ComboListaTags_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboListaTags.SelectedIndex == -1)
+                return;
+
+            NomeTagSelecionada = ComboListaTags.SelectedItem.ToString();
+        }
+        // LEADER_LINE
 
 
         //private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
