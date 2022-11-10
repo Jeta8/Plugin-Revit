@@ -44,11 +44,6 @@ namespace SegundaBiblioteca
             ICollection<Element> tubulacoes =
             new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
 
-            var localzi = tubulacoes.First().Location as LocationCurve;
-            var simbolos = tubulacoes.First().get_Parameter(BuiltInParameter.SYMBOL_FAMILY_NAME_PARAM);
-            Parameter IDsimbolo = tubulacoes.First().get_Parameter(BuiltInParameter.SYMBOL_ID_PARAM);
-
-
             ICollection<Element> identificadores =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
 
@@ -73,18 +68,18 @@ namespace SegundaBiblioteca
                 var refe = new Reference(tubulacoes.First());
 
                 Parameter SymbolTag = TagSelecionada.get_Parameter(BuiltInParameter.SYMBOL_ID_PARAM);
-
+                var medialocalizacao = tubulacoes.First().get_BoundingBox(Doc.ActiveView).Max;
                 try
                 {
                     Transaction t = new Transaction(Doc.Document, "Adicionar Tag");
                     t.Start();
-
-
+                    // new BoundingBoxXYZ.Equals(tubulacoes)
+                   // 
                     IndependentTag tag = IndependentTag.Create(
                     Doc.Document, SymbolTag.AsElementId(), Doc.ActiveView.Id, refe,
                     false,
-                     TagOrientation.Horizontal, XYZ.BasisZ);
-
+                     TagOrientation.Horizontal, medialocalizacao);
+                    
                     t.Commit();
 
                     if (tag != null)

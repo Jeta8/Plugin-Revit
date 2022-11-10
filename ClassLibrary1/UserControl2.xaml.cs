@@ -53,9 +53,13 @@ namespace ClassLibrary1
             ICollection<Element> identificadores =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
 
+      
+
             IList<string> NomesAdicionados = new List<string>();
 
             IList<string> TagsAdicionados = new List<string>();
+
+            IList<string> InstanciasDisp = new List<string>();
 
             foreach (Element i in tubulacoes)
             {
@@ -85,6 +89,22 @@ namespace ClassLibrary1
                     {
                         ComboListaTags.Items.Add(t.AsValueString());
                         TagsAdicionados.Add(t.AsValueString());
+                    }
+                }
+
+            }
+            foreach (Element h in identificadores)
+            {
+                Parameter s = h.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM);
+                dynamic pfamilia = s.AsElementId();
+                Family Familia = pfamilia.Family as Family;
+
+                if (s != null && s.AsValueString() != null)
+                {
+                    if (!InstanciasDisp.Contains(s.AsValueString()))
+                    {
+                        ComboListaInstancias.Items.Add(s.AsValueString());
+                        InstanciasDisp.Add(s.AsValueString());
                     }
                 }
 
@@ -167,6 +187,11 @@ namespace ClassLibrary1
                 return;
 
             NomeTagSelecionada = ComboListaTags.SelectedItem.ToString();
+        }
+
+        private void ComboListaInstancias_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
         // LEADER_LINE
 
