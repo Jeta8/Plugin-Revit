@@ -51,15 +51,29 @@ namespace SegundaBiblioteca
 
             foreach (Element g in identificadores)
             {
-                Parameter t = g.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM);
-
-                if (t != null && t.AsValueString() != null)
+                try
                 {
-                    if (t.AsValueString().Equals(UserControl2.NomeTagSelecionada))
+                    dynamic elemento = g;
+                    dynamic isFamilyInstance = elemento.Family;
+
+                    if (isFamilyInstance != null)
                     {
-                        TagSelecionada = g;
-                        break;
+                        // Acessa o símbolo da família aqui
+                        FamilySymbol fmanager = g as FamilySymbol;
+
+                        if (fmanager != null)
+                        {
+                            if (fmanager.Name.Equals(UserControl2.TipoTagSelecionada))
+                            {
+                                TagSelecionada = g;
+                                break;
+                            }
+                        }
                     }
+                }
+                catch (Exception)
+                {
+                    continue;
                 }
             }
 
@@ -67,19 +81,20 @@ namespace SegundaBiblioteca
             {
                 var refe = new Reference(tubulacoes.First());
 
-                Parameter SymbolTag = TagSelecionada.get_Parameter(BuiltInParameter.SYMBOL_ID_PARAM);
+                //Parameter SymbolTag = TagSelecionada.get_Parameter(BuiltInParameter.SYMBOL_ID_PARAM);
                 var medialocalizacao = tubulacoes.First().get_BoundingBox(Doc.ActiveView).Max;
+
                 try
                 {
                     Transaction t = new Transaction(Doc.Document, "Adicionar Tag");
                     t.Start();
                     // new BoundingBoxXYZ.Equals(tubulacoes)
-                   // 
+                    // 
                     IndependentTag tag = IndependentTag.Create(
-                    Doc.Document, SymbolTag.AsElementId(), Doc.ActiveView.Id, refe,
+                    Doc.Document, TagSelecionada.Id, Doc.ActiveView.Id, refe,
                     false,
                      TagOrientation.Horizontal, medialocalizacao);
-                    
+
                     t.Commit();
 
                     if (tag != null)

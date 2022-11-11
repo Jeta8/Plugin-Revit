@@ -34,6 +34,7 @@ namespace ClassLibrary1
     {
         UIDocument Doc;
         public static string NomeTagSelecionada = "";
+        public static string TipoTagSelecionada = "";
         public UserControl2()
         {
         }
@@ -51,9 +52,7 @@ namespace ClassLibrary1
                  new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
 
             ICollection<Element> identificadores =
-                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
-
-      
+    new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
 
             IList<string> NomesAdicionados = new List<string>();
 
@@ -93,23 +92,8 @@ namespace ClassLibrary1
                 }
 
             }
-            foreach (Element h in identificadores)
-            {
-                Parameter s = h.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM);
-                dynamic pfamilia = s.AsElementId();
-                Family Familia = pfamilia.Family as Family;
-
-                if (s != null && s.AsValueString() != null)
-                {
-                    if (!InstanciasDisp.Contains(s.AsValueString()))
-                    {
-                        ComboListaInstancias.Items.Add(s.AsValueString());
-                        InstanciasDisp.Add(s.AsValueString());
-                    }
-                }
-
-            }
         }
+
 
 
         private void SelecaoT_Click(object sender, RoutedEventArgs e)
@@ -169,14 +153,6 @@ namespace ClassLibrary1
         private void AdicionarTags_Click(object sender, RoutedEventArgs e)
         {
             ComandoTags.GetInstance.cTags.Raise();
-            // SYMBOL_FAMILY_NAME_PARAM
-            //Line linha = localzi.Curve as Line;
-            //FamilySymbol simbol = simbolos.Element as FamilySymbol;
-
-            //if (localzi.Curve != null)
-            //{
-
-            //}
 
 
         }
@@ -187,11 +163,63 @@ namespace ClassLibrary1
                 return;
 
             NomeTagSelecionada = ComboListaTags.SelectedItem.ToString();
+
+            ICollection<Element> identificadores =
+             new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
+
+
+            foreach (Element h in identificadores)
+            {
+                try
+                {
+                    dynamic elemento = h;
+                    dynamic isFamilyInstance = elemento.Family;
+
+                    if(isFamilyInstance == null)
+                    {
+                        identificadores.Remove(h);
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+
+            foreach (Element h in identificadores)
+            {
+                try
+                {
+                    dynamic elemento = h;
+                    dynamic isFamilyInstance = elemento.Family;
+
+                    if (isFamilyInstance != null)
+                    {
+                        FamilySymbol instancia = h as FamilySymbol;
+                        string nomeFamilia = instancia.FamilyName;
+
+                        if (instancia != null && NomeTagSelecionada.Equals(nomeFamilia))
+                        {
+                            if (!ComboListaInstancias.Items.Contains(instancia.Name))
+                            {
+                                ComboListaInstancias.Items.Add(instancia.Name);
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
         }
 
         private void ComboListaInstancias_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (ComboListaInstancias.SelectedIndex == -1)
+                return;
 
+            TipoTagSelecionada = ComboListaInstancias.SelectedItem.ToString();
         }
         // LEADER_LINE
 
@@ -221,3 +249,94 @@ namespace ClassLibrary1
     }
 
 }
+
+
+
+//public Result insereFamilia()
+//{
+//    iGlobals = Globals.GetInstance;
+
+//```
+//        Parameter reservatorio = null;
+
+//    using (var trans = new Transaction(ActiveDoc.Doc, "Inserindo o Reservatório"))
+//    {
+//        trans.Start();
+
+//        double rPosicionamento = 0;
+
+//        // Posicionamento dos reservatórios
+//        if (iGlobals.iReservatorios.reservatorioSuperior)
+//        {
+//            // Valor do reservatório adotado pelo usuário
+//            if (iGlobals.vreservaSuperior > 10000) // Reservatóro máximo
+//            {
+//                UnMEP.MainWindow.window.addLog("O volume do reservatório superior excedeu 10.000L! será considerado o maior reservatório disponível.", 2);
+//            }
+
+//            rPosicionamento = iGlobals.iAguaFria.selecionaReservatorio(iGlobals.vreservaSuperior);
+//        }
+//        else
+//        {
+//            if (iGlobals.vreservaInferior > 10000) // Reservatóro máximo
+//            {
+//                UnMEP.MainWindow.window.addLog("O volume do reservatório inferior excedeu 10.000L! será considerado o maior reservatório disponível.", 2);
+//            }
+
+//            // Pega o reservatório ideal
+//            rPosicionamento = iGlobals.iAguaFria.selecionaReservatorio(iGlobals.vreservaInferior);
+//        }
+
+//        var format = String.Format("{0:N0}", rPosicionamento);
+
+//        List<BuiltInCategory> listaFiltro = new List<BuiltInCategory>();
+//        listaFiltro.Add(BuiltInCategory.OST_PlumbingFixtures);
+
+//        ElementMulticategoryFilter filtroCompatibilitar = new ElementMulticategoryFilter(listaFiltro);
+//        FilteredElementCollector docCollector = new FilteredElementCollector(ActiveDoc.Doc).WherePasses(filtroCompatibilitar);
+
+//        // Percorre todas as famílias da categoria carregadas no projeto
+//        foreach (var pecasHidrossanatiras in docCollector.ToElements())
+//        {
+//            Parameter p = pecasHidrossanatiras.get_Parameter(BuiltInParameter.ELEM_TYPE_PARAM);
+
+//            if (p != null)
+//            {
+//                // Nome da instância da família
+//                if (rPosicionamento > 750)
+//                {
+//                    if (pecasHidrossanatiras.Name.Equals("UnMEP - " + (rPosicionamento > 5000 ? "C" : (rPosicionamento > 750 ? "B" : "A")) + " - " + format + " L"))
+//                    {
+//                        // Encontrou a instância da família, salva o parâmetro na variável
+//                        reservatorio = p;
+//                        break;
+//                    }
+//                }
+//                else
+//                {
+//                    if (pecasHidrossanatiras.Name.Equals("UnMEP - " + (rPosicionamento > 5000 ? "C" : (rPosicionamento > 750 ? "B" : "A")) + " - " + rPosicionamento + " L"))
+//                    {
+//                        reservatorio = p;
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+
+//        trans.Commit();
+//    }
+
+//    if (reservatorio != null)
+//    {
+//        // Acessa a família responsável pela instância
+//        ElementId familyId = reservatorio.Element.Id;
+//        dynamic family = ActiveDoc.Doc.GetElement(familyId);
+
+//        if (family != null)
+//        {
+//            // Acessa o símbolo da família aqui
+//            dynamic fmanager = family.Family;
+//        }
+//    }
+//}
+//```‌
