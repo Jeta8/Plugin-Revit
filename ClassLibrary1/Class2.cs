@@ -79,34 +79,55 @@ namespace SegundaBiblioteca
 
             if (TagSelecionada != null)
             {
-                var refe = new Reference(tubulacoes.First());
-
-                //Parameter SymbolTag = TagSelecionada.get_Parameter(BuiltInParameter.SYMBOL_ID_PARAM);
-                var medialocalizacao = tubulacoes.First().get_BoundingBox(Doc.ActiveView).Max;
-
-                try
+                foreach (Element item in tubulacoes)
                 {
-                    Transaction t = new Transaction(Doc.Document, "Adicionar Tag");
-                    t.Start();
-                    // new BoundingBoxXYZ.Equals(tubulacoes)
-                    // 
-                    IndependentTag tag = IndependentTag.Create(
-                    Doc.Document, TagSelecionada.Id, Doc.ActiveView.Id, refe,
-                    false,
-                     TagOrientation.Horizontal, medialocalizacao);
+                    var refe = new Reference(item);
+                    // Determina a posição da Tag (XYZ)
+                    var posicaoTag = item.get_BoundingBox(Doc.ActiveView).Max;
 
-                    t.Commit();
+                    try
+                    {
+                        foreach (Element a in tubulacoes)
+                        {
 
-                    if (tag != null)
+                            Parameter Comprimento = a.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
+
+
+
+                            if (Comprimento != null)
+                            {
+                                double ValorComprimentoTag = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
+
+                                if () // Definir aqui a operação lógica que vai pegar a metade do comprimento das tubulações para colocar as tags no centro de cada tubulação 
+                                {
+                                    
+                                }
+                            }
+
+
+                        }
+
+
+                        Transaction t = new Transaction(Doc.Document, "Adicionar Tag");
+                        t.Start();
+
+                        IndependentTag tag = IndependentTag.Create(
+                        Doc.Document, TagSelecionada.Id, Doc.ActiveView.Id, refe,
+                        false,
+                         TagOrientation.Horizontal, posicaoTag);
+
+                        t.Commit();
+
+                        if (tag != null)
+                        {
+
+                        }
+                    }
+                    catch (Exception er)
                     {
 
                     }
                 }
-                catch (Exception er)
-                {
-
-                }
-
 
             }
 

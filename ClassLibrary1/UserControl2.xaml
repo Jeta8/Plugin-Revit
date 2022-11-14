@@ -49,7 +49,7 @@
         <ComboBox x:Name="ComboLista" Width="200" Height="25" Background="Aqua" Margin="0,0,250,80"/>
         <ComboBox x:Name="ComboListaTags" Width="200" Height="25" Background="Aqua" Margin="0,0,250,0" SelectionChanged="ComboListaTags_SelectionChanged"/>
         <ComboBox x:Name="ComboListaInstancias" Width="200" Height="25" Background="Aqua" Margin="0,80,250,0" SelectionChanged="ComboListaInstancias_SelectionChanged" />
-        <Button  x:Name="SelecaoTubos" Width="130" Height="30" VerticalAlignment="Top" Visibility="Visible" Background="#dedfe0" Click="SelecaoT_Click" Margin="0,240,180,0" Content="Selecionar Sistema"/>
+        <Button  x:Name="SelecaoTubos" Width="130" Height="30" VerticalAlignment="Top" Visibility="Visible" Background="#dedfe0" Click="Selecionar_Sistema_Click" Margin="0,240,180,0" Content="Selecionar Sistema"/>
         <Button x:Name="AdicionarTags" Width="130" Height="30" VerticalAlignment="Top" Margin="185,200,0,0" Content="Adicionar Tag" Click="AdicionarTags_Click"/>
     </Grid>
 </Window>

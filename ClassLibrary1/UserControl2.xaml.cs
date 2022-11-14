@@ -58,7 +58,7 @@ namespace ClassLibrary1
 
             IList<string> TagsAdicionados = new List<string>();
 
-            IList<string> InstanciasDisp = new List<string>();
+
 
             foreach (Element i in tubulacoes)
             {
@@ -96,7 +96,7 @@ namespace ClassLibrary1
 
 
 
-        private void SelecaoT_Click(object sender, RoutedEventArgs e)
+        private void Selecionar_Sistema_Click(object sender, RoutedEventArgs e)
         {
             ICollection<Element> tubulacoes =
                new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
@@ -153,8 +153,6 @@ namespace ClassLibrary1
         private void AdicionarTags_Click(object sender, RoutedEventArgs e)
         {
             ComandoTags.GetInstance.cTags.Raise();
-
-
         }
 
         private void ComboListaTags_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -175,17 +173,16 @@ namespace ClassLibrary1
                     dynamic elemento = h;
                     dynamic isFamilyInstance = elemento.Family;
 
-                    if(isFamilyInstance == null)
+                    if (isFamilyInstance == null)
                     {
                         identificadores.Remove(h);
                     }
                 }
                 catch (Exception)
                 {
-
                 }
             }
-
+            ComboListaInstancias.Items.Clear();
             foreach (Element h in identificadores)
             {
                 try
@@ -207,6 +204,7 @@ namespace ClassLibrary1
                         }
                     }
                 }
+
                 catch (Exception)
                 {
                     continue;
@@ -221,33 +219,7 @@ namespace ClassLibrary1
 
             TipoTagSelecionada = ComboListaInstancias.SelectedItem.ToString();
         }
-        // LEADER_LINE
-
-
-        //private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    if (ComboLista.SelectedItem != null)
-
-        //    try
-        //    {
-        //        IList<string> ListaTipos = new List<string>();
-
-        //        foreach (Element cSistemas in TiposSistemas)
-        //        {
-        //            ListaTipos.Add(cSistemas.Name);
-        //        }
-        //        ComboLista.DataContext = ListaTipos;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        TaskDialog.Show("Error", ex.ToString());
-        //    }
-
-        //}
-
-
     }
-
 }
 
 
