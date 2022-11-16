@@ -96,7 +96,7 @@ namespace ClassLibrary1
 
 
 
-        private void Selecionar_Sistema_Click(object sender, RoutedEventArgs e)
+        public void Selecionar_Sistema_Click(object sender, RoutedEventArgs e)
         {
             ICollection<Element> tubulacoes =
                new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
@@ -105,6 +105,7 @@ namespace ClassLibrary1
 
             foreach (Element t in tubulacoes)
             {
+
                 Parameter Sistemas = t.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
                 if (Sistemas != null && Sistemas.AsValueString() != null)
                 {
@@ -127,7 +128,7 @@ namespace ClassLibrary1
             Doc.Selection.SetElementIds(SistemaSelecionado);
         }
 
-        double ValorUsuario = 0;
+        public static double ValorUsuario = 0;
         private void InputComprimento_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (InputComprimento.Text != "")
@@ -141,6 +142,11 @@ namespace ClassLibrary1
                     ValorUsuario = 0;
                     InputComprimento.Text = "";
                 }
+
+            }
+            else
+            {
+                ValorUsuario = 0;
             }
         }
 

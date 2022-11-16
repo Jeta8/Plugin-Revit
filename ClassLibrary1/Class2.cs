@@ -79,58 +79,86 @@ namespace SegundaBiblioteca
 
             if (TagSelecionada != null)
             {
+
                 foreach (Element item in tubulacoes)
                 {
-                    var refe = new Reference(item);
-                    // Determina a posição da Tag (XYZ)
-                    var posicaoTag = item.get_BoundingBox(Doc.ActiveView).Max;
+                    Parameter Comprimento = item.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
 
-                    try
+
+                    if (Comprimento != null)
                     {
-                        foreach (Element a in tubulacoes)
+                        double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
+
+                        if (ValorComprimento >= UserControl2.ValorUsuario)
                         {
+                            var refe = new Reference(item);
+                            int indexVariacao = 0;
+                            XYZ PosicaoFinalTag = null;
+                            // Determina a posição da Tag (XYZ)
+                            var posicaoTag = item.get_BoundingBox(Doc.ActiveView).Max;
+                            var posicaominima = item.get_BoundingBox(Doc.ActiveView).Min;
 
-                            Parameter Comprimento = a.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
+                            var DifPosX = (posicaoTag.X - posicaominima.X);
+                            var DifPosY = (posicaoTag.Y - posicaominima.Y);
+                            var DifPosZ = (posicaoTag.Z - posicaominima.Z);
+
+                            double variacao = 0;
+
+                            if (DifPosX > DifPosZ && DifPosX > DifPosY)
+                                variacao = 1;
+                            else if (DifPosY > DifPosX && DifPosX > DifPosZ)
+                                variacao = 2;
+                            else
+                                variacao = 3;
+
+                            PosicaoFinalTag = posicaoTag;
 
 
-
-                            if (Comprimento != null)
+                            switch (variacao)
                             {
-                                double ValorComprimentoTag = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
-
-                                if () // Definir aqui a operação lógica que vai pegar a metade do comprimento das tubulações para colocar as tags no centro de cada tubulação 
-                                {
-                                    
-                                }
+                                case 1:
+                                    DifPosX = posicaoTag.X - ((posicaoTag.X - posicaominima.X) / 2);
+                                    PosicaoFinalTag = new XYZ(DifPosX, posicaoTag.Y, posicaoTag.Z);
+                                    break;
+                                case 2:
+                                    DifPosY = posicaoTag.Y - ((posicaoTag.Y - posicaominima.Y) / 2);
+                                    PosicaoFinalTag = new XYZ(posicaoTag.X, DifPosY, posicaoTag.Z);
+                                    break;
+                                case 3:
+                                    DifPosZ = posicaoTag.Z - ((posicaoTag.Z - posicaominima.Z) / 2);
+                                    PosicaoFinalTag = new XYZ(posicaoTag.X, posicaoTag.Y, DifPosZ);
+                                    break;
                             }
 
+                            try
+                            {
+                                Transaction t = new Transaction(Doc.Document, "Adicionar Tag");
+                                t.Start();
 
-                        }
+                                IndependentTag tag = IndependentTag.Create(
+                                Doc.Document, TagSelecionada.Id, Doc.ActiveView.Id, refe,
+                                false,
+                                 TagOrientation.Horizontal, PosicaoFinalTag);
 
+                                t.Commit();
 
-                        Transaction t = new Transaction(Doc.Document, "Adicionar Tag");
-                        t.Start();
+                                if (tag != null)
+                                {
 
-                        IndependentTag tag = IndependentTag.Create(
-                        Doc.Document, TagSelecionada.Id, Doc.ActiveView.Id, refe,
-                        false,
-                         TagOrientation.Horizontal, posicaoTag);
-
-                        t.Commit();
-
-                        if (tag != null)
-                        {
-
+                                }
+                            }
+                            catch (Exception er)
+                            {
+                                continue;
+                            }
                         }
                     }
-                    catch (Exception er)
+                    else
                     {
-
+                        continue;
                     }
                 }
-
             }
-
         }
 
         public string GetName()

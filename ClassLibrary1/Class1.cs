@@ -26,8 +26,6 @@ namespace ClassLibrary1
             UserControl2 janela = new UserControl2(uiapp.ActiveUIDocument);
             janela.Show();
 
-
-
             return Result.Succeeded;
 
         }
