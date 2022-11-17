@@ -13,6 +13,8 @@ using ClassLibrary1;
 using System.Windows;
 using System.Windows.Controls;
 using Autodesk.Revit.DB.Plumbing;
+using System.Collections.ObjectModel;
+using System.Linq.Expressions;
 
 namespace SegundaBiblioteca
 {
@@ -20,6 +22,8 @@ namespace SegundaBiblioteca
     {
         public ExternalEvent cTags;
 
+
+        public static ICollection<ElementId> TagsDoUnmep = new Collection<ElementId>();
 
         // Constructor
         private ComandoTags()
@@ -92,7 +96,7 @@ namespace SegundaBiblioteca
                         if (ValorComprimento >= UserControl2.ValorUsuario)
                         {
                             var refe = new Reference(item);
-                            int indexVariacao = 0;
+
                             XYZ PosicaoFinalTag = null;
                             // Determina a posição da Tag (XYZ)
                             var posicaoTag = item.get_BoundingBox(Doc.ActiveView).Max;
@@ -144,13 +148,14 @@ namespace SegundaBiblioteca
 
                                 if (tag != null)
                                 {
-
+                                    TagsDoUnmep.Add(tag.Id);
                                 }
                             }
                             catch (Exception er)
                             {
                                 continue;
                             }
+
                         }
                     }
                     else
@@ -167,9 +172,54 @@ namespace SegundaBiblioteca
         }
     }
 
+    public class ComandoLimpeza : IExternalEventHandler
+    {
+        public ExternalEvent LimpezaTags;
+
+        // Constructor
+        private ComandoLimpeza()
+        {
+
+        }
+
+        private static readonly ComandoLimpeza _instanceLimpeza = new ComandoLimpeza();
+        public static ComandoLimpeza GetInstance
+        {
+            get
+            {
+                return _instanceLimpeza;
+            }
+        }
+
+        public void Execute(UIApplication app)
+        {
+            var uTag = ComandoTags.TagsDoUnmep;
+            if (uTag != null)
+            {
+                Transaction p = new Transaction(app.ActiveUIDocument.Document, "Limpar Tag");
+                p.Start();
+                try
+                {
+                    foreach (ElementId i in uTag)
+                    {
+                        app.ActiveUIDocument.Document.Delete(i);
+                    }
+
+                    p.Commit();
+                    uTag.Clear();
+                }
+                catch (Exception e) { }
+            }
+        }
+
+        public string GetName()
+        {
+            return "Comando Limpeza";
+        }
+    }
     internal class TagsDisponiveis
     {
-        // TagsDisponiveis JanelaRevit = new TagsDisponiveis();
+
         public void JanelaRevit(object sender, EventArgs e)
         {
 

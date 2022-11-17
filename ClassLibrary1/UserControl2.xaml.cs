@@ -71,64 +71,64 @@ namespace ClassLibrary1
                     {
                         if (!NomesAdicionados.Contains(p.AsValueString()))
                         {
-                            ComboLista.Items.Add(p.AsValueString());
+                            ComboListaSistema.Items.Add(p.AsValueString());
                             NomesAdicionados.Add(p.AsValueString());
                         }
 
                     }
                 }
             }
+            
             foreach (Element g in identificadores)
             {
-                Parameter t = g.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM);
-
-                if (t != null && t.AsValueString() != null)
+               
+                Parameter t = g.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME);
+                if (t != null && t.AsString() != null)
                 {
-                    if (!TagsAdicionados.Contains(t.AsValueString()))
+                    if (!TagsAdicionados.Contains(t.AsString()))
                     {
-                        ComboListaTags.Items.Add(t.AsValueString());
-                        TagsAdicionados.Add(t.AsValueString());
-                    }
+                        ComboListaTags.Items.Add(t.AsString());
+                        TagsAdicionados.Add(t.AsString());
+                    }           
                 }
-
+              
             }
         }
 
 
-
-        public void Selecionar_Sistema_Click(object sender, RoutedEventArgs e)
-        {
-            ICollection<Element> tubulacoes =
-               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
-            // Verificar o sistema selecionado e selecionar apenas as tubulações correspondentes
-            IList<ElementId> SistemaSelecionado = new List<ElementId>();
-
-            foreach (Element t in tubulacoes)
+            public void Selecionar_Sistema_Click(object sender, RoutedEventArgs e)
             {
+                ICollection<Element> tubulacoes =
+                   new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
+                // Verificar o sistema selecionado e selecionar apenas as tubulações correspondentes
+                IList<ElementId> SistemaSelecionado = new List<ElementId>();
 
-                Parameter Sistemas = t.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-                if (Sistemas != null && Sistemas.AsValueString() != null)
+                foreach (Element t in tubulacoes)
                 {
-                    Parameter Comprimento = t.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
 
-                    if (Sistemas.AsValueString().Equals(ComboLista.SelectedItem.ToString()))
+                    Parameter Sistemas = t.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+                    if (Sistemas != null && Sistemas.AsValueString() != null)
                     {
-                        if (Comprimento != null)
-                        {
-                            double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
+                        Parameter Comprimento = t.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
 
-                            if (ValorComprimento >= ValorUsuario)
+                        if (Sistemas.AsValueString().Equals(ComboListaSistema.SelectedItem.ToString()))
+                        {
+                            if (Comprimento != null)
                             {
-                                SistemaSelecionado.Add(t.Id);
+                                double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
+
+                                if (ValorComprimento >= ValorUsuario)
+                                {
+                                    SistemaSelecionado.Add(t.Id);
+                                }
                             }
                         }
                     }
                 }
+                Doc.Selection.SetElementIds(SistemaSelecionado);
             }
-            Doc.Selection.SetElementIds(SistemaSelecionado);
-        }
 
-        public static double ValorUsuario = 0;
+    public static double ValorUsuario = 0;
         private void InputComprimento_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (InputComprimento.Text != "")
@@ -225,96 +225,10 @@ namespace ClassLibrary1
 
             TipoTagSelecionada = ComboListaInstancias.SelectedItem.ToString();
         }
+
+        private void LimparTags_Click(object sender, RoutedEventArgs e)
+        {
+            ComandoLimpeza.GetInstance.LimpezaTags.Raise();                     
+        }
     }
 }
-
-
-
-//public Result insereFamilia()
-//{
-//    iGlobals = Globals.GetInstance;
-
-//```
-//        Parameter reservatorio = null;
-
-//    using (var trans = new Transaction(ActiveDoc.Doc, "Inserindo o Reservatório"))
-//    {
-//        trans.Start();
-
-//        double rPosicionamento = 0;
-
-//        // Posicionamento dos reservatórios
-//        if (iGlobals.iReservatorios.reservatorioSuperior)
-//        {
-//            // Valor do reservatório adotado pelo usuário
-//            if (iGlobals.vreservaSuperior > 10000) // Reservatóro máximo
-//            {
-//                UnMEP.MainWindow.window.addLog("O volume do reservatório superior excedeu 10.000L! será considerado o maior reservatório disponível.", 2);
-//            }
-
-//            rPosicionamento = iGlobals.iAguaFria.selecionaReservatorio(iGlobals.vreservaSuperior);
-//        }
-//        else
-//        {
-//            if (iGlobals.vreservaInferior > 10000) // Reservatóro máximo
-//            {
-//                UnMEP.MainWindow.window.addLog("O volume do reservatório inferior excedeu 10.000L! será considerado o maior reservatório disponível.", 2);
-//            }
-
-//            // Pega o reservatório ideal
-//            rPosicionamento = iGlobals.iAguaFria.selecionaReservatorio(iGlobals.vreservaInferior);
-//        }
-
-//        var format = String.Format("{0:N0}", rPosicionamento);
-
-//        List<BuiltInCategory> listaFiltro = new List<BuiltInCategory>();
-//        listaFiltro.Add(BuiltInCategory.OST_PlumbingFixtures);
-
-//        ElementMulticategoryFilter filtroCompatibilitar = new ElementMulticategoryFilter(listaFiltro);
-//        FilteredElementCollector docCollector = new FilteredElementCollector(ActiveDoc.Doc).WherePasses(filtroCompatibilitar);
-
-//        // Percorre todas as famílias da categoria carregadas no projeto
-//        foreach (var pecasHidrossanatiras in docCollector.ToElements())
-//        {
-//            Parameter p = pecasHidrossanatiras.get_Parameter(BuiltInParameter.ELEM_TYPE_PARAM);
-
-//            if (p != null)
-//            {
-//                // Nome da instância da família
-//                if (rPosicionamento > 750)
-//                {
-//                    if (pecasHidrossanatiras.Name.Equals("UnMEP - " + (rPosicionamento > 5000 ? "C" : (rPosicionamento > 750 ? "B" : "A")) + " - " + format + " L"))
-//                    {
-//                        // Encontrou a instância da família, salva o parâmetro na variável
-//                        reservatorio = p;
-//                        break;
-//                    }
-//                }
-//                else
-//                {
-//                    if (pecasHidrossanatiras.Name.Equals("UnMEP - " + (rPosicionamento > 5000 ? "C" : (rPosicionamento > 750 ? "B" : "A")) + " - " + rPosicionamento + " L"))
-//                    {
-//                        reservatorio = p;
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-
-//        trans.Commit();
-//    }
-
-//    if (reservatorio != null)
-//    {
-//        // Acessa a família responsável pela instância
-//        ElementId familyId = reservatorio.Element.Id;
-//        dynamic family = ActiveDoc.Doc.GetElement(familyId);
-
-//        if (family != null)
-//        {
-//            // Acessa o símbolo da família aqui
-//            dynamic fmanager = family.Family;
-//        }
-//    }
-//}
-//```‌
