@@ -19,14 +19,16 @@ namespace ClassLibrary1
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            // Evento para adicionar as tag
             ExternalEvent exComandoTags = ExternalEvent.Create(ComandoTags.GetInstance);
             ComandoTags.GetInstance.cTags = exComandoTags;
 
-
+            // Evento para abrir a janela do plugin
             UIApplication uiapp = commandData.Application;
             UserControl2 janela = new UserControl2(uiapp.ActiveUIDocument);
             janela.Show();
 
+            // Evento para apagar as tags
             ExternalEvent comandoLimpeza = ExternalEvent.Create(ComandoLimpeza.GetInstance);
             ComandoLimpeza.GetInstance.LimpezaTags = comandoLimpeza;
             

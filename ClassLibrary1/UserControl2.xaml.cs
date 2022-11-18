@@ -48,11 +48,11 @@ namespace ClassLibrary1
 
         public void VerificarSistemas()
         {
+            // Coleções que armazenam as tubulações e tags do projeto do usuário
             ICollection<Element> tubulacoes =
                  new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
-
             ICollection<Element> identificadores =
-    new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
+                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
 
             IList<string> NomesAdicionados = new List<string>();
 
@@ -62,26 +62,22 @@ namespace ClassLibrary1
 
             foreach (Element i in tubulacoes)
             {
+                // Aqui verifica os sistemas / disciplinas que o usuário tem na vista atual
                 Parameter p = i.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-
 
                 if (p != null && p.AsValueString() != null)
                 {
-
+                    if (!NomesAdicionados.Contains(p.AsValueString()))
                     {
-                        if (!NomesAdicionados.Contains(p.AsValueString()))
-                        {
-                            ComboListaSistema.Items.Add(p.AsValueString());
-                            NomesAdicionados.Add(p.AsValueString());
-                        }
-
+                        ComboListaSistema.Items.Add(p.AsValueString());
+                        NomesAdicionados.Add(p.AsValueString());
                     }
                 }
             }
-            
+
             foreach (Element g in identificadores)
             {
-               
+                // Aqui verifica os tipos de tags que o usuário tem em todo o projeto dele
                 Parameter t = g.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME);
                 if (t != null && t.AsString() != null)
                 {
@@ -89,48 +85,46 @@ namespace ClassLibrary1
                     {
                         ComboListaTags.Items.Add(t.AsString());
                         TagsAdicionados.Add(t.AsString());
-                    }           
+                    }
                 }
-              
             }
         }
 
+        public void Selecionar_Sistema_Click(object sender, RoutedEventArgs e)
+        {
+            ICollection<Element> tubulacoes =
+               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();         
+            IList<ElementId> SistemaSelecionado = new List<ElementId>();
 
-            public void Selecionar_Sistema_Click(object sender, RoutedEventArgs e)
+            foreach (Element t in tubulacoes)
             {
-                ICollection<Element> tubulacoes =
-                   new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
                 // Verificar o sistema selecionado e selecionar apenas as tubulações correspondentes
-                IList<ElementId> SistemaSelecionado = new List<ElementId>();
-
-                foreach (Element t in tubulacoes)
+                Parameter Sistemas = t.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+                if (Sistemas != null && Sistemas.AsValueString() != null)
                 {
+                    Parameter Comprimento = t.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
 
-                    Parameter Sistemas = t.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-                    if (Sistemas != null && Sistemas.AsValueString() != null)
+                    if (Sistemas.AsValueString().Equals(ComboListaSistema.SelectedItem.ToString()))
                     {
-                        Parameter Comprimento = t.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
+                        if (Comprimento != null)
+                        { // Converte a unidade de comprimento de pés (padrão do Revit) para metros
+                            double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
 
-                        if (Sistemas.AsValueString().Equals(ComboListaSistema.SelectedItem.ToString()))
-                        {
-                            if (Comprimento != null)
+                            if (ValorComprimento >= ValorUsuario) 
                             {
-                                double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
-
-                                if (ValorComprimento >= ValorUsuario)
-                                {
-                                    SistemaSelecionado.Add(t.Id);
-                                }
+                                SistemaSelecionado.Add(t.Id);
                             }
                         }
                     }
                 }
-                Doc.Selection.SetElementIds(SistemaSelecionado);
             }
+            Doc.Selection.SetElementIds(SistemaSelecionado);
+        }
 
-    public static double ValorUsuario = 0;
+        public static double ValorUsuario = 0;
         private void InputComprimento_TextChanged(object sender, TextChangedEventArgs e)
         {
+            // Aqui o usuário pode escolher o comprimento específico de tubulações que ele deseja selecionar e/ou adicionar as tags
             if (InputComprimento.Text != "")
             {
                 try
@@ -142,7 +136,6 @@ namespace ClassLibrary1
                     ValorUsuario = 0;
                     InputComprimento.Text = "";
                 }
-
             }
             else
             {
@@ -151,7 +144,7 @@ namespace ClassLibrary1
         }
 
         private void InputComprimento_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        {
+        { // Filtro de caracteres, para só aceitar números
             Regex regex = new Regex("[^0-9,]+");
             e.Handled = regex.IsMatch(e.Text);
         }
@@ -163,6 +156,7 @@ namespace ClassLibrary1
 
         private void ComboListaTags_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // Aqui adiciona ao combobox os tipos de tags no projeto do usuário
             if (ComboListaTags.SelectedIndex == -1)
                 return;
 
@@ -190,7 +184,7 @@ namespace ClassLibrary1
             }
             ComboListaInstancias.Items.Clear();
             foreach (Element h in identificadores)
-            {
+            { // Adiciona as instâncias ( Direção e tamanho da tag )
                 try
                 {
                     dynamic elemento = h;
@@ -228,7 +222,7 @@ namespace ClassLibrary1
 
         private void LimparTags_Click(object sender, RoutedEventArgs e)
         {
-            ComandoLimpeza.GetInstance.LimpezaTags.Raise();                     
+            ComandoLimpeza.GetInstance.LimpezaTags.Raise();
         }
     }
 }
