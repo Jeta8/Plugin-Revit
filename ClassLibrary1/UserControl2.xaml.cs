@@ -34,7 +34,9 @@ namespace ClassLibrary1
     {
         UIDocument Doc;
         public static string NomeTagSelecionada = "";
+        public static string NomeTagConexaoSelecionada = "";
         public static string TipoTagSelecionada = "";
+        public static string TipoTagConexaoSelecionada = "";
         public UserControl2()
         {
         }
@@ -53,12 +55,19 @@ namespace ClassLibrary1
                  new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
             ICollection<Element> identificadores =
                  new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
+            ICollection<Element> conexoes =
+                  new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
+            ICollection<Element> tagsconexoes =
+                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
+
 
             IList<string> NomesAdicionados = new List<string>();
 
             IList<string> TagsAdicionados = new List<string>();
 
+            IList<string> ConexoesAdiconadas = new List<string>();
 
+            IList<string> TagsConexoesAdicionados = new List<string>();
 
             foreach (Element i in tubulacoes)
             {
@@ -88,12 +97,26 @@ namespace ClassLibrary1
                     }
                 }
             }
+
+            foreach (Element j in tagsconexoes)
+            {
+                // Aqui verifica os tipos de tags que o usuário tem em todo o projeto dele
+                Parameter k = j.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME);
+                if (k != null && k.AsString() != null)
+                {
+                    if (!TagsAdicionados.Contains(k.AsString()))
+                    {
+                        ComboListaTagsConexoes.Items.Add(k.AsString());
+                        TagsConexoesAdicionados.Add(k.AsString());
+                    }
+                }
+            }
         }
 
         public void Selecionar_Sistema_Click(object sender, RoutedEventArgs e)
         {
             ICollection<Element> tubulacoes =
-               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();         
+               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
             IList<ElementId> SistemaSelecionado = new List<ElementId>();
 
             foreach (Element t in tubulacoes)
@@ -110,7 +133,7 @@ namespace ClassLibrary1
                         { // Converte a unidade de comprimento de pés (padrão do Revit) para metros
                             double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
 
-                            if (ValorComprimento >= ValorUsuario) 
+                            if (ValorComprimento >= ValorUsuario)
                             {
                                 SistemaSelecionado.Add(t.Id);
                             }
@@ -149,6 +172,7 @@ namespace ClassLibrary1
             e.Handled = regex.IsMatch(e.Text);
         }
 
+        // Tags em Tubulações
         private void AdicionarTags_Click(object sender, RoutedEventArgs e)
         {
             ComandoTags.GetInstance.cTags.Raise();
@@ -217,12 +241,86 @@ namespace ClassLibrary1
             if (ComboListaInstancias.SelectedIndex == -1)
                 return;
 
-            TipoTagSelecionada = ComboListaInstancias.SelectedItem.ToString();
+            NomeTagSelecionada = ComboListaInstancias.SelectedItem.ToString();
         }
 
+        // Limpar Tags
         private void LimparTags_Click(object sender, RoutedEventArgs e)
         {
             ComandoLimpeza.GetInstance.LimpezaTags.Raise();
+        }
+
+        // Tags em Conexões
+        private void AdicionarTagsConexoes_Click(object sender, RoutedEventArgs e)
+        {
+            TagsConexoes.GetInstance.TagsConex.Raise();
+        }
+     
+        private void ComboListaTagsConexoes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Aqui adiciona ao combobox os tipos de tags no projeto do usuário
+            if (ComboListaTagsConexoes.SelectedIndex == -1)
+                return;
+
+            NomeTagConexaoSelecionada = ComboListaTagsConexoes.SelectedItem.ToString();
+
+            ICollection<Element> tagsconexoes =
+             new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
+
+
+            foreach (Element h in tagsconexoes)
+            {
+                try
+                {
+                    dynamic conexao = h;
+                    dynamic isFamilyInstanceConex = conexao.Family;
+
+                    if (isFamilyInstanceConex == null)
+                    {
+                        tagsconexoes.Remove(h);
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+            ComboListaInstanciasConexoes.Items.Clear();
+            foreach (Element h in tagsconexoes)
+            { // Adiciona as instâncias ( Direção e tamanho da tag )
+                try
+                {
+                    dynamic conexao = h;
+                    dynamic isFamilyInstanceConex = conexao.Family;
+
+                    if (isFamilyInstanceConex != null)
+                    {
+                        FamilySymbol instanciaconexao = h as FamilySymbol;
+                        string nomeFamilia = instanciaconexao.FamilyName;
+
+                        if (instanciaconexao != null && NomeTagConexaoSelecionada.Equals(nomeFamilia))
+                        {
+                            if (!ComboListaInstanciasConexoes.Items.Contains(instanciaconexao.Name))
+                            {
+                                ComboListaInstanciasConexoes.Items.Add(instanciaconexao.Name);
+                            }
+                        }
+                    }
+                }
+
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+        }
+
+
+        private void ComboListaInstanciasConexoes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboListaInstanciasConexoes.SelectedIndex == -1)
+                return;
+
+            NomeTagConexaoSelecionada = ComboListaInstanciasConexoes.SelectedItem.ToString();
         }
     }
 }

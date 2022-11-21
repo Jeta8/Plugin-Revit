@@ -46,13 +46,17 @@
 
     <Grid Background="White">
 
-        <TextBox x:Name="InputComprimento" Width="200" Height="25" Margin="250,0,0,0" Style="{StaticResource placeHolder}" Tag="Demarcar Comprimento (metros)" TextChanged="InputComprimento_TextChanged" PreviewTextInput="InputComprimento_PreviewTextInput" />
-        <ComboBox x:Name="ComboListaSistema" Width="200" Height="25" Background="Aqua" Margin="0,0,250,80"/>
-        <ComboBox x:Name="ComboListaTags" Width="200" Height="25" Background="Aqua" Margin="0,0,250,0" SelectionChanged="ComboListaTags_SelectionChanged"/>
-        <ComboBox x:Name="ComboListaInstancias" Width="200" Height="25" Background="Aqua" Margin="0,80,250,0" SelectionChanged="ComboListaInstancias_SelectionChanged" />
-        <Button  x:Name="SelecaoTubos" Width="130" Height="30" VerticalAlignment="Top" Visibility="Visible" Background="#dedfe0" Click="Selecionar_Sistema_Click" Margin="0,240,180,0" Content="Selecionar Sistema"/>
+        <TextBox x:Name="InputComprimento" Width="200" Height="25" Margin="250,30,0,0" Style="{StaticResource placeHolder}" Tag="Demarcar Comprimento (metros)" TextChanged="InputComprimento_TextChanged" PreviewTextInput="InputComprimento_PreviewTextInput" />
+        <ComboBox x:Name="ComboListaSistema" Width="200" Height="25" Margin="0,0,250,200"/>
+        <ComboBox x:Name="ComboListaTags" Width="200" Height="25" Margin="0,0,250,120" SelectionChanged="ComboListaTags_SelectionChanged"/>
+        <ComboBox x:Name="ComboListaInstancias" Width="200" Height="25" Margin="0,0,250,40" SelectionChanged="ComboListaInstancias_SelectionChanged" />
+        <ComboBox x:Name="ComboListaTagsConexoes" Width="200" Height="25" Margin="250,0,0,120" SelectionChanged="ComboListaTagsConexoes_SelectionChanged" />
+        <ComboBox x:Name="ComboListaInstanciasConexoes" Width="200" Height="25" Margin="250,0,0,40" SelectionChanged="ComboListaInstanciasConexoes_SelectionChanged" />
+
+        <Button x:Name="SelecaoTubos" Width="130" Height="30" VerticalAlignment="Top" Visibility="Visible" Background="#dedfe0" Click="Selecionar_Sistema_Click" Margin="0,240,180,0" Content="Selecionar Sistema"/>
         <Button x:Name="AdicionarTags" Width="100" Height="30" VerticalAlignment="Top" Margin="150,200,0,0" Content="Adicionar Tag" Click="AdicionarTags_Click"/>
         <Button x:Name="LimparTags" Width="80" Height="30" VerticalAlignment="Top" Margin="370,200,0,0" Content="Limpar Tags" Click="LimparTags_Click"/>
-        <Button x:Name="LimparTudo" Width="80" Height="30" VerticalAlignment="Top" Margin="320,250,0,0" Content="Limpar Tudo"/>
+        <Button x:Name="AdicionarTagsConexoes" Width="100" Height="30" VerticalAlignment="Top" Margin="150,250,0,0" Content="Tags Conexoes" Click="AdicionarTagsConexoes_Click"/>
+        <Button x:Name="LimparTudo" Width="80" Height="30" VerticalAlignment="Top" Margin="380,250,0,0" Content="Limpar Tudo"/>
     </Grid>
 </Window>

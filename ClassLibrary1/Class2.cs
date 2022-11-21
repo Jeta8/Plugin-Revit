@@ -90,18 +90,16 @@ namespace SegundaBiblioteca
                 foreach (Element item in tubulacoes)
                 {
                     Parameter Comprimento = item.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
-                    Parameter DiametroTub = item.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
 
                     if (Comprimento != null)
                     {
                         double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
-                        double ValorDiametro = UnitUtils.Convert(DiametroTub.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS);
 
                         if (ValorComprimento >= UserControl2.ValorUsuario)
                         {
                             var refe = new Reference(item);
 
-                            XYZ PosicaoFinalTag = null;
+
                             // Determina a posição da Tag (XYZ)
                             var posicaoTag = item.get_BoundingBox(Doc.ActiveView).Max;
                             var posicaominima = item.get_BoundingBox(Doc.ActiveView).Min;
@@ -111,38 +109,10 @@ namespace SegundaBiblioteca
                             var DifPosX = (posicaoTag.X - posicaominima.X);
                             var DifPosY = (posicaoTag.Y - posicaominima.Y);
                             var DifPosZ = (posicaoTag.Z - posicaominima.Z);
-                            var DifDiam = (((ValorDiametro / 2) * 0.01) - 0.04);
+
 
                             XYZ PosicaoFinal = new XYZ((posicaoTag.X - (DifPosX / 2)), posicaoTag.Y - (DifPosY / 2), posicaoTag.Z - (DifPosZ / 2));
 
-
-                            //if (DifPosX > DifPosZ && DifPosX > DifPosY)
-                            //    variacao = 1;
-                            //else if (DifPosY > DifPosX && DifPosX > DifPosZ)
-                            //    variacao = 2;
-                            //else
-                            //    variacao = 3;
-
-                            //PosicaoFinalTag = posicaoTag;
-
-                            //// Switch com as possibilidades de tubulações (Aqui também é onde especifica que a tag ficará no centro da tubulação)
-
-                            //switch (variacao)
-                            //{
-                            //    case 1:
-                            //        DifPosX = posicaoTag.X - ((posicaoTag.X - posicaominima.X) / 2);
-                            //        PosicaoFinalTag = new XYZ(DifPosX, (posicaoTag.Y - DifDiam), posicaoTag.Z);
-                            //        break;
-                            //    case 2:
-                            //        DifPosY = posicaoTag.Y - ((posicaoTag.Y - posicaominima.Y) / 2);
-                            //        PosicaoFinalTag = new XYZ(posicaoTag.X - 10, (DifPosY - DifDiam), posicaoTag.Z  );
-                            //        break;
-                            //    case 3:
-                            //        DifPosZ = posicaoTag.Z - ((posicaoTag.Z - posicaominima.Z) / 2);
-                            //        PosicaoFinalTag = new XYZ(posicaoTag.X, (posicaoTag.Y - DifDiam), DifPosZ);
-                            //        break;
-                            //}
-                            // 10358270
                             try
                             {
                                 // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
@@ -223,6 +193,127 @@ namespace SegundaBiblioteca
         public string GetName()
         {
             return "Comando Limpeza";
+        }
+    }
+
+    public class TagsConexoes : IExternalEventHandler
+    {
+        public ExternalEvent TagsConex;
+
+        public static ICollection<ElementId> TagsConexoesDoUnmep = new Collection<ElementId>();
+
+        // Constructor
+        private TagsConexoes()
+        {
+        }
+
+        private static readonly TagsConexoes _instance = new TagsConexoes();
+        public static TagsConexoes GetInstance
+        {
+            get
+            {
+                return _instance;
+            }
+        }
+
+        public void Execute(UIApplication app)
+        {
+            UIDocument Doc = app.ActiveUIDocument;
+
+            ICollection<Element> conexoes =
+                new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
+
+            ICollection<Element> tagsconexoes =
+                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
+
+            Element TagConexSelecionada = null;
+
+
+            foreach (Element g in tagsconexoes)
+            {
+                try
+                {
+
+                    dynamic elemento = g;
+                    dynamic isFamilyInstance = elemento.Family;
+
+                    if (isFamilyInstance != null)
+                    {
+                        // Acessa o símbolo da família aqui
+                        FamilySymbol fcmanager = g as FamilySymbol;
+
+                        if (fcmanager != null)
+                        {
+                            if (fcmanager.Name.Equals(UserControl2.TipoTagConexaoSelecionada))
+                            {
+                                TagConexSelecionada = g;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+            if (TagConexSelecionada != null)
+            {
+
+                foreach (Element itemconex in conexoes)
+                {
+
+                    if (itemconex != null)
+                    {
+                        var refe = new Reference(itemconex);
+
+                        // Determina a posição da Tag (XYZ)
+                        var posicaoTagConex = itemconex.get_BoundingBox(Doc.ActiveView).Max;
+                        var posicaominimaConex = itemconex.get_BoundingBox(Doc.ActiveView).Min;
+
+                        // Checagem de posicionamento da tubulação (Horizontal varia em X, Vertical varia em Z)
+
+                        var DifPosX = (posicaoTagConex.X - posicaominimaConex.X);
+                        var DifPosY = (posicaoTagConex.Y - posicaominimaConex.Y);
+                        var DifPosZ = (posicaoTagConex.Z - posicaominimaConex.Z);
+
+
+                        XYZ PosicaoFinal = new XYZ(posicaoTagConex.X - (DifPosX / 2), posicaoTagConex.Y - (DifPosY / 2), posicaoTagConex.Z - (DifPosZ / 2));
+
+                        try
+                        {
+                            // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
+                            Transaction t = new Transaction(Doc.Document, "Adicionar Tag na Conexão");
+                            t.Start();
+
+                            IndependentTag tag = IndependentTag.Create(
+                            Doc.Document, TagConexSelecionada.Id, Doc.ActiveView.Id, refe,
+                            false, TagOrientation.Horizontal, PosicaoFinal);
+
+                            t.Commit();
+
+                            if (tag != null)
+                            {
+                                TagsConexoesDoUnmep.Add(tag.Id);
+                            }
+                        }
+                        catch (Exception er)
+                        {
+                            continue;
+                        }
+
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+        }
+
+        public string GetName()
+        {
+            return "Comando Tags Conexões";
         }
     }
     internal class TagsDisponiveis
