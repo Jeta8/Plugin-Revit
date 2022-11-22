@@ -19,12 +19,12 @@ namespace ClassLibrary1
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            // Evento para adicionar as tags nas tubulacoes
+            // Evento para adicionar as tag
             ExternalEvent exComandoTags = ExternalEvent.Create(ComandoTags.GetInstance);
             ComandoTags.GetInstance.cTags = exComandoTags;
 
             // Evento para adicionar as tags nas conexoes
-            ExternalEvent ComandoTagsConexoes = ExternalEvent.Create(ComandoTags.GetInstance);
+            ExternalEvent ComandoTagsConexoes = ExternalEvent.Create(TagsConexoes.GetInstance);
             TagsConexoes.GetInstance.TagsConex = ComandoTagsConexoes;
 
             // Evento para abrir a janela do plugin
@@ -36,7 +36,9 @@ namespace ClassLibrary1
             ExternalEvent comandoLimpeza = ExternalEvent.Create(ComandoLimpeza.GetInstance);
             ComandoLimpeza.GetInstance.LimpezaTags = comandoLimpeza;
             
-          
+
+            
+
             return Result.Succeeded;
 
         }

@@ -15,6 +15,7 @@ using System.Windows.Controls;
 using Autodesk.Revit.DB.Plumbing;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using System.Windows.Ink;
 
 namespace SegundaBiblioteca
 {
@@ -90,16 +91,18 @@ namespace SegundaBiblioteca
                 foreach (Element item in tubulacoes)
                 {
                     Parameter Comprimento = item.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
+                    Parameter DiametroTub = item.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
 
                     if (Comprimento != null)
                     {
                         double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
+                        double ValorDiametro = UnitUtils.Convert(DiametroTub.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS);
 
                         if (ValorComprimento >= UserControl2.ValorUsuario)
                         {
                             var refe = new Reference(item);
 
-
+                            XYZ PosicaoFinalTag = null;
                             // Determina a posição da Tag (XYZ)
                             var posicaoTag = item.get_BoundingBox(Doc.ActiveView).Max;
                             var posicaominima = item.get_BoundingBox(Doc.ActiveView).Min;
@@ -109,9 +112,11 @@ namespace SegundaBiblioteca
                             var DifPosX = (posicaoTag.X - posicaominima.X);
                             var DifPosY = (posicaoTag.Y - posicaominima.Y);
                             var DifPosZ = (posicaoTag.Z - posicaominima.Z);
-
+                            var DifDiam = (((ValorDiametro / 2) * 0.01) - 0.04);
 
                             XYZ PosicaoFinal = new XYZ((posicaoTag.X - (DifPosX / 2)), posicaoTag.Y - (DifPosY / 2), posicaoTag.Z - (DifPosZ / 2));
+
+
 
                             try
                             {
@@ -172,7 +177,8 @@ namespace SegundaBiblioteca
         public void Execute(UIApplication app)
         {
             var uTag = ComandoTags.TagsDoUnmep;
-            if (uTag != null)
+            var ConTag = TagsConexoes.TagsConexoesDoUnmep;
+            if (uTag != null || ConTag != null)
             {
                 Transaction p = new Transaction(app.ActiveUIDocument.Document, "Limpar Tag");
                 p.Start();
@@ -182,9 +188,14 @@ namespace SegundaBiblioteca
                     {
                         app.ActiveUIDocument.Document.Delete(i);
                     }
+                    foreach (ElementId o in ConTag)
+                    {
+                        app.ActiveUIDocument.Document.Delete(o);
+                    }
 
                     p.Commit();
                     uTag.Clear();
+                    ConTag.Clear();
                 }
                 catch (Exception e) { }
             }
@@ -201,18 +212,19 @@ namespace SegundaBiblioteca
         public ExternalEvent TagsConex;
 
         public static ICollection<ElementId> TagsConexoesDoUnmep = new Collection<ElementId>();
+        public static ICollection<ElementId> TagsAcessoriosDoUnmep = new Collection<ElementId>();
 
         // Constructor
         private TagsConexoes()
         {
         }
 
-        private static readonly TagsConexoes _instance = new TagsConexoes();
+        private static readonly TagsConexoes _instancia = new TagsConexoes();
         public static TagsConexoes GetInstance
         {
             get
             {
-                return _instance;
+                return _instancia;
             }
         }
 
@@ -226,7 +238,14 @@ namespace SegundaBiblioteca
             ICollection<Element> tagsconexoes =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
 
+            ICollection<Element> acessorios = 
+                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeAccessory).ToElements();
+
+            ICollection<Element> tagsacessorios =
+                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeAccessoryTags).ToElements();
+
             Element TagConexSelecionada = null;
+            Element TagAcessorioSelecionado = null;
 
 
             foreach (Element g in tagsconexoes)
@@ -259,14 +278,22 @@ namespace SegundaBiblioteca
             }
             if (TagConexSelecionada != null)
             {
-
                 foreach (Element itemconex in conexoes)
                 {
-
+                    try
+                    {
+                        FamilyInstance VerificarSuperComp = itemconex as FamilyInstance;
+                        if (VerificarSuperComp.SuperComponent != null)
+                        {
+                            continue;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
                     if (itemconex != null)
                     {
                         var refe = new Reference(itemconex);
-
                         // Determina a posição da Tag (XYZ)
                         var posicaoTagConex = itemconex.get_BoundingBox(Doc.ActiveView).Max;
                         var posicaominimaConex = itemconex.get_BoundingBox(Doc.ActiveView).Min;
@@ -286,15 +313,119 @@ namespace SegundaBiblioteca
                             Transaction t = new Transaction(Doc.Document, "Adicionar Tag na Conexão");
                             t.Start();
 
-                            IndependentTag tag = IndependentTag.Create(
+                            IndependentTag tagConexao = IndependentTag.Create(
                             Doc.Document, TagConexSelecionada.Id, Doc.ActiveView.Id, refe,
-                            false, TagOrientation.Horizontal, PosicaoFinal);
+                            true, TagOrientation.Horizontal, PosicaoFinal);
 
                             t.Commit();
 
-                            if (tag != null)
+                            if (tagConexao != null)
                             {
-                                TagsConexoesDoUnmep.Add(tag.Id);
+                                TagsConexoesDoUnmep.Add(tagConexao.Id);
+                            }
+                        }
+                        catch (Exception er)
+                        {
+                            continue;
+                        }
+
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+
+            // Acessorios
+
+            foreach (Element d in tagsacessorios)
+            {
+
+
+                try
+                {
+
+                    dynamic elemento = d;
+                    dynamic isFamilyInstance = elemento.Family;
+
+                    if (isFamilyInstance != null)
+                    {
+                        // Acessa o símbolo da família aqui
+                        FamilySymbol fcmanager = d as FamilySymbol;
+
+                        if (fcmanager != null)
+                        {
+                            if (fcmanager.Name.Equals(UserControl2.TipoTagAcessorioSelecionado))
+                            {
+                                TagAcessorioSelecionado = d;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+            if (TagAcessorioSelecionado != null)
+            {
+
+                foreach (Element itemacess in acessorios)
+                {
+                    try
+                    {
+                        FamilyInstance VerificarSuperComp = itemacess as FamilyInstance;
+                        if (VerificarSuperComp != null && VerificarSuperComp.SuperComponent != null)
+                        {
+                            continue;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    if (itemacess != null)
+                    {
+                        try
+                        {
+                            if (itemacess.LevelId.IntegerValue == -1)
+                            {
+                                continue;
+                            } ;
+                        }
+                        catch(Exception e) { }
+
+
+                        var refe = new Reference(itemacess);
+                        // Determina a posição da Tag (XYZ)
+                        var posicaoTagAcess = itemacess.get_BoundingBox(Doc.ActiveView).Max;
+                        var posicaominimaAcess = itemacess.get_BoundingBox(Doc.ActiveView).Min;
+
+                        // Checagem de posicionamento da tubulação (Horizontal varia em X, Vertical varia em Z)
+
+                        var DifPosX = (posicaoTagAcess.X - posicaominimaAcess.X);
+                        var DifPosY = (posicaoTagAcess.Y - posicaominimaAcess.Y);
+                        var DifPosZ = (posicaoTagAcess.Z - posicaominimaAcess.Z);
+
+
+                        XYZ PosicaoFinal = new XYZ(posicaoTagAcess.X - (DifPosX / 2), posicaoTagAcess.Y - (DifPosY / 2), posicaoTagAcess.Z - (DifPosZ / 2));
+
+                        try
+                        {
+                            // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
+                            Transaction t = new Transaction(Doc.Document, "Adicionar Tag na Conexão");
+                            t.Start();
+
+                            IndependentTag tagConexao = IndependentTag.Create(
+                            Doc.Document, TagConexSelecionada.Id, Doc.ActiveView.Id, refe,
+                            true, TagOrientation.Horizontal, PosicaoFinal);
+
+                            t.Commit();
+
+                            if (tagConexao != null)
+                            {
+                                TagsAcessoriosDoUnmep.Add(tagConexao.Id);
                             }
                         }
                         catch (Exception er)
@@ -313,7 +444,7 @@ namespace SegundaBiblioteca
 
         public string GetName()
         {
-            return "Comando Tags Conexões";
+            return "Comando Tags Acessorios";
         }
     }
     internal class TagsDisponiveis
