@@ -15,6 +15,7 @@ using System.Windows.Controls;
 using Autodesk.Revit.DB.Plumbing;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using System.Windows.Ink;
 
 namespace SegundaBiblioteca
 {
@@ -116,33 +117,7 @@ namespace SegundaBiblioteca
                             XYZ PosicaoFinal = new XYZ((posicaoTag.X - (DifPosX / 2)), posicaoTag.Y - (DifPosY / 2), posicaoTag.Z - (DifPosZ / 2));
 
 
-                            //if (DifPosX > DifPosZ && DifPosX > DifPosY)
-                            //    variacao = 1;
-                            //else if (DifPosY > DifPosX && DifPosX > DifPosZ)
-                            //    variacao = 2;
-                            //else
-                            //    variacao = 3;
 
-                            //PosicaoFinalTag = posicaoTag;
-
-                            //// Switch com as possibilidades de tubulações (Aqui também é onde especifica que a tag ficará no centro da tubulação)
-
-                            //switch (variacao)
-                            //{
-                            //    case 1:
-                            //        DifPosX = posicaoTag.X - ((posicaoTag.X - posicaominima.X) / 2);
-                            //        PosicaoFinalTag = new XYZ(DifPosX, (posicaoTag.Y - DifDiam), posicaoTag.Z);
-                            //        break;
-                            //    case 2:
-                            //        DifPosY = posicaoTag.Y - ((posicaoTag.Y - posicaominima.Y) / 2);
-                            //        PosicaoFinalTag = new XYZ(posicaoTag.X - 10, (DifPosY - DifDiam), posicaoTag.Z  );
-                            //        break;
-                            //    case 3:
-                            //        DifPosZ = posicaoTag.Z - ((posicaoTag.Z - posicaominima.Z) / 2);
-                            //        PosicaoFinalTag = new XYZ(posicaoTag.X, (posicaoTag.Y - DifDiam), DifPosZ);
-                            //        break;
-                            //}
-                            // 10358270
                             try
                             {
                                 // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
@@ -202,7 +177,8 @@ namespace SegundaBiblioteca
         public void Execute(UIApplication app)
         {
             var uTag = ComandoTags.TagsDoUnmep;
-            if (uTag != null)
+            var ConTag = TagsConexoes.TagsConexoesDoUnmep;
+            if (uTag != null || ConTag != null)
             {
                 Transaction p = new Transaction(app.ActiveUIDocument.Document, "Limpar Tag");
                 p.Start();
@@ -212,9 +188,14 @@ namespace SegundaBiblioteca
                     {
                         app.ActiveUIDocument.Document.Delete(i);
                     }
+                    foreach (ElementId o in ConTag)
+                    {
+                        app.ActiveUIDocument.Document.Delete(o);
+                    }
 
                     p.Commit();
                     uTag.Clear();
+                    ConTag.Clear();
                 }
                 catch (Exception e) { }
             }
@@ -223,6 +204,247 @@ namespace SegundaBiblioteca
         public string GetName()
         {
             return "Comando Limpeza";
+        }
+    }
+
+    public class TagsConexoes : IExternalEventHandler
+    {
+        public ExternalEvent TagsConex;
+
+        public static ICollection<ElementId> TagsConexoesDoUnmep = new Collection<ElementId>();
+        public static ICollection<ElementId> TagsAcessoriosDoUnmep = new Collection<ElementId>();
+
+        // Constructor
+        private TagsConexoes()
+        {
+        }
+
+        private static readonly TagsConexoes _instancia = new TagsConexoes();
+        public static TagsConexoes GetInstance
+        {
+            get
+            {
+                return _instancia;
+            }
+        }
+
+        public void Execute(UIApplication app)
+        {
+            UIDocument Doc = app.ActiveUIDocument;
+
+            ICollection<Element> conexoes =
+                new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
+
+            ICollection<Element> tagsconexoes =
+                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
+
+            ICollection<Element> acessorios = 
+                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeAccessory).ToElements();
+
+            ICollection<Element> tagsacessorios =
+                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeAccessoryTags).ToElements();
+
+            Element TagConexSelecionada = null;
+            Element TagAcessorioSelecionado = null;
+
+
+            foreach (Element g in tagsconexoes)
+            {
+                try
+                {
+
+                    dynamic elemento = g;
+                    dynamic isFamilyInstance = elemento.Family;
+
+                    if (isFamilyInstance != null)
+                    {
+                        // Acessa o símbolo da família aqui
+                        FamilySymbol fcmanager = g as FamilySymbol;
+
+                        if (fcmanager != null)
+                        {
+                            if (fcmanager.Name.Equals(UserControl2.TipoTagConexaoSelecionada))
+                            {
+                                TagConexSelecionada = g;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+            if (TagConexSelecionada != null)
+            {
+                foreach (Element itemconex in conexoes)
+                {
+                    try
+                    {
+                        FamilyInstance VerificarSuperComp = itemconex as FamilyInstance;
+                        if (VerificarSuperComp.SuperComponent != null)
+                        {
+                            continue;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    if (itemconex != null)
+                    {
+                        var refe = new Reference(itemconex);
+                        // Determina a posição da Tag (XYZ)
+                        var posicaoTagConex = itemconex.get_BoundingBox(Doc.ActiveView).Max;
+                        var posicaominimaConex = itemconex.get_BoundingBox(Doc.ActiveView).Min;
+
+                        // Checagem de posicionamento da tubulação (Horizontal varia em X, Vertical varia em Z)
+
+                        var DifPosX = (posicaoTagConex.X - posicaominimaConex.X);
+                        var DifPosY = (posicaoTagConex.Y - posicaominimaConex.Y);
+                        var DifPosZ = (posicaoTagConex.Z - posicaominimaConex.Z);
+
+
+                        XYZ PosicaoFinal = new XYZ(posicaoTagConex.X - (DifPosX / 2), posicaoTagConex.Y - (DifPosY / 2), posicaoTagConex.Z - (DifPosZ / 2));
+
+                        try
+                        {
+                            // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
+                            Transaction t = new Transaction(Doc.Document, "Adicionar Tag na Conexão");
+                            t.Start();
+
+                            IndependentTag tagConexao = IndependentTag.Create(
+                            Doc.Document, TagConexSelecionada.Id, Doc.ActiveView.Id, refe,
+                            true, TagOrientation.Horizontal, PosicaoFinal);
+
+                            t.Commit();
+
+                            if (tagConexao != null)
+                            {
+                                TagsConexoesDoUnmep.Add(tagConexao.Id);
+                            }
+                        }
+                        catch (Exception er)
+                        {
+                            continue;
+                        }
+
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+
+            // Acessorios
+
+            foreach (Element d in tagsacessorios)
+            {
+
+
+                try
+                {
+
+                    dynamic elemento = d;
+                    dynamic isFamilyInstance = elemento.Family;
+
+                    if (isFamilyInstance != null)
+                    {
+                        // Acessa o símbolo da família aqui
+                        FamilySymbol fcmanager = d as FamilySymbol;
+
+                        if (fcmanager != null)
+                        {
+                            if (fcmanager.Name.Equals(UserControl2.TipoTagAcessorioSelecionado))
+                            {
+                                TagAcessorioSelecionado = d;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+            if (TagAcessorioSelecionado != null)
+            {
+
+                foreach (Element itemacess in acessorios)
+                {
+                    try
+                    {
+                        FamilyInstance VerificarSuperComp = itemacess as FamilyInstance;
+                        if (VerificarSuperComp != null && VerificarSuperComp.SuperComponent != null)
+                        {
+                            continue;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    if (itemacess != null)
+                    {
+                        try
+                        {
+                            if (itemacess.LevelId.IntegerValue == -1)
+                            {
+                                continue;
+                            } ;
+                        }
+                        catch(Exception e) { }
+
+
+                        var refe = new Reference(itemacess);
+                        // Determina a posição da Tag (XYZ)
+                        var posicaoTagAcess = itemacess.get_BoundingBox(Doc.ActiveView).Max;
+                        var posicaominimaAcess = itemacess.get_BoundingBox(Doc.ActiveView).Min;
+
+                        // Checagem de posicionamento da tubulação (Horizontal varia em X, Vertical varia em Z)
+
+                        var DifPosX = (posicaoTagAcess.X - posicaominimaAcess.X);
+                        var DifPosY = (posicaoTagAcess.Y - posicaominimaAcess.Y);
+                        var DifPosZ = (posicaoTagAcess.Z - posicaominimaAcess.Z);
+
+
+                        XYZ PosicaoFinal = new XYZ(posicaoTagAcess.X - (DifPosX / 2), posicaoTagAcess.Y - (DifPosY / 2), posicaoTagAcess.Z - (DifPosZ / 2));
+
+                        try
+                        {
+                            // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
+                            Transaction t = new Transaction(Doc.Document, "Adicionar Tag na Conexão");
+                            t.Start();
+
+                            IndependentTag tagConexao = IndependentTag.Create(
+                            Doc.Document, TagConexSelecionada.Id, Doc.ActiveView.Id, refe,
+                            true, TagOrientation.Horizontal, PosicaoFinal);
+
+                            t.Commit();
+
+                            if (tagConexao != null)
+                            {
+                                TagsAcessoriosDoUnmep.Add(tagConexao.Id);
+                            }
+                        }
+                        catch (Exception er)
+                        {
+                            continue;
+                        }
+
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+        }
+
+        public string GetName()
+        {
+            return "Comando Tags Acessorios";
         }
     }
     internal class TagsDisponiveis
