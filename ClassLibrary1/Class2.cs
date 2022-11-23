@@ -178,7 +178,10 @@ namespace SegundaBiblioteca
         {
             var uTag = ComandoTags.TagsDoUnmep;
             var ConTag = TagsConexoes.TagsConexoesDoUnmep;
-            if (uTag != null || ConTag != null)
+            var AcessTag = TagsAcessorios.TagsAcessoriosDoUnmep;
+            var PecasTag = TagsPecasHidro.TagsPecasDoUnmep;
+
+            if (uTag != null || ConTag != null || AcessTag != null || PecasTag != null)
             {
                 Transaction p = new Transaction(app.ActiveUIDocument.Document, "Limpar Tag");
                 p.Start();
@@ -192,10 +195,20 @@ namespace SegundaBiblioteca
                     {
                         app.ActiveUIDocument.Document.Delete(o);
                     }
+                    foreach (ElementId u in AcessTag)
+                    {
+                        app.ActiveUIDocument.Document.Delete(u);
+                    }
+                    foreach (ElementId r in PecasTag)
+                    {
+                        app.ActiveUIDocument.Document.Delete(r);
+                    }
 
                     p.Commit();
                     uTag.Clear();
                     ConTag.Clear();
+                    AcessTag.Clear();
+                    PecasTag.Clear();
                 }
                 catch (Exception e) { }
             }
@@ -212,7 +225,7 @@ namespace SegundaBiblioteca
         public ExternalEvent TagsConex;
 
         public static ICollection<ElementId> TagsConexoesDoUnmep = new Collection<ElementId>();
-        public static ICollection<ElementId> TagsAcessoriosDoUnmep = new Collection<ElementId>();
+        
 
         // Constructor
         private TagsConexoes()
@@ -238,16 +251,9 @@ namespace SegundaBiblioteca
             ICollection<Element> tagsconexoes =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
 
-            ICollection<Element> acessorios = 
-                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeAccessory).ToElements();
-
-            ICollection<Element> tagsacessorios =
-                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeAccessoryTags).ToElements();
-
+         
             Element TagConexSelecionada = null;
-            Element TagAcessorioSelecionado = null;
-
-
+            
             foreach (Element g in tagsconexoes)
             {
                 try
@@ -336,16 +342,47 @@ namespace SegundaBiblioteca
                     }
                 }
             }
+        }
 
-            // Acessorios
+        public string GetName()
+        {
+            return "Comando Tags Acessorios";
+        }
+    }
+
+    public class TagsAcessorios : IExternalEventHandler
+    {
+        public ExternalEvent TagsAcess;
+
+        public static ICollection<ElementId> TagsAcessoriosDoUnmep = new Collection<ElementId>();
+        // Constructor
+        private TagsAcessorios()
+        {
+        }
+        private static readonly TagsAcessorios _instancia = new TagsAcessorios();
+        public static TagsAcessorios GetInstance
+        {
+            get
+            {
+                return _instancia;
+            }
+        }
+        public void Execute(UIApplication app)
+        {
+            UIDocument Doc = app.ActiveUIDocument;
+
+            ICollection<Element> acessorios =
+              new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeAccessory).ToElements();
+
+            ICollection<Element> tagsacessorios =
+                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeAccessoryTags).ToElements();
+
+            Element TagAcessorioSelecionado = null;
 
             foreach (Element d in tagsacessorios)
             {
-
-
                 try
                 {
-
                     dynamic elemento = d;
                     dynamic isFamilyInstance = elemento.Family;
 
@@ -371,7 +408,6 @@ namespace SegundaBiblioteca
             }
             if (TagAcessorioSelecionado != null)
             {
-
                 foreach (Element itemacess in acessorios)
                 {
                     try
@@ -392,9 +428,9 @@ namespace SegundaBiblioteca
                             if (itemacess.LevelId.IntegerValue == -1)
                             {
                                 continue;
-                            } ;
+                            };
                         }
-                        catch(Exception e) { }
+                        catch (Exception e) { }
 
 
                         var refe = new Reference(itemacess);
@@ -408,17 +444,16 @@ namespace SegundaBiblioteca
                         var DifPosY = (posicaoTagAcess.Y - posicaominimaAcess.Y);
                         var DifPosZ = (posicaoTagAcess.Z - posicaominimaAcess.Z);
 
-
                         XYZ PosicaoFinal = new XYZ(posicaoTagAcess.X - (DifPosX / 2), posicaoTagAcess.Y - (DifPosY / 2), posicaoTagAcess.Z - (DifPosZ / 2));
 
                         try
                         {
                             // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
-                            Transaction t = new Transaction(Doc.Document, "Adicionar Tag na Conexão");
+                            Transaction t = new Transaction(Doc.Document, "Adicionar Tag no Acessório");
                             t.Start();
 
                             IndependentTag tagConexao = IndependentTag.Create(
-                            Doc.Document, TagConexSelecionada.Id, Doc.ActiveView.Id, refe,
+                            Doc.Document, TagAcessorioSelecionado.Id, Doc.ActiveView.Id, refe,
                             true, TagOrientation.Horizontal, PosicaoFinal);
 
                             t.Commit();
@@ -432,7 +467,6 @@ namespace SegundaBiblioteca
                         {
                             continue;
                         }
-
                     }
                     else
                     {
@@ -447,6 +481,139 @@ namespace SegundaBiblioteca
             return "Comando Tags Acessorios";
         }
     }
+
+    public class TagsPecasHidro : IExternalEventHandler
+    {
+        public ExternalEvent TagsPecas;
+
+        public static ICollection<ElementId> TagsPecasDoUnmep = new Collection<ElementId>();
+        // Constructor
+        private TagsPecasHidro()
+        {
+        }
+        private static readonly TagsPecasHidro _instancia = new TagsPecasHidro();
+        public static TagsPecasHidro GetInstance
+        {
+            get
+            {
+                return _instancia;
+            }
+        }
+        public void Execute(UIApplication app)
+        {
+            UIDocument Doc = app.ActiveUIDocument;
+
+            ICollection<Element> pecas =
+              new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtures).ToElements();
+
+            ICollection<Element> tagspecas =
+                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
+
+            Element TagPecaSelecionada = null;
+
+            foreach (Element d in tagspecas)
+            {
+                try
+                {
+                    dynamic elemento = d;
+                    dynamic isFamilyInstance = elemento.Family;
+
+                    if (isFamilyInstance != null)
+                    {
+                        // Acessa o símbolo da família aqui
+                        FamilySymbol fcmanager = d as FamilySymbol;
+
+                        if (fcmanager != null)
+                        {
+                            if (fcmanager.Name.Equals(UserControl2.TipoTagPecaSelecionado))
+                            {
+                                TagPecaSelecionada = d;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+            if (TagPecaSelecionada != null)
+            {
+                foreach (Element itempecas in pecas)
+                {
+                    try
+                    {
+                        FamilyInstance VerificarSuperComp = itempecas as FamilyInstance;
+                        if (VerificarSuperComp != null && VerificarSuperComp.SuperComponent != null)
+                        {
+                            continue;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    if (itempecas != null)
+                    {
+                        try
+                        {
+                            if (itempecas.LevelId.IntegerValue == -1)
+                            {
+                                continue;
+                            };
+                        }
+                        catch (Exception e) { }
+
+
+                        var refe = new Reference(itempecas);
+                        // Determina a posição da Tag (XYZ)
+                        var posicaoTagPecas = itempecas.get_BoundingBox(Doc.ActiveView).Max;
+                        var posicaominimaPecas = itempecas.get_BoundingBox(Doc.ActiveView).Min;
+
+                        // Checagem de posicionamento da tubulação (Horizontal varia em X, Vertical varia em Z)
+
+                        var DifPosX = (posicaoTagPecas.X - posicaominimaPecas.X);
+                        var DifPosY = (posicaoTagPecas.Y - posicaominimaPecas.Y);
+                        var DifPosZ = (posicaoTagPecas.Z - posicaominimaPecas.Z);
+
+                        XYZ PosicaoFinal = new XYZ(posicaoTagPecas.X - (DifPosX / 2), posicaoTagPecas.Y - (DifPosY / 2), posicaoTagPecas.Z - (DifPosZ / 2));
+
+                        try
+                        {
+                            // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
+                            Transaction t = new Transaction(Doc.Document, "Adicionar Tag no Peça");
+                            t.Start();
+
+                            IndependentTag tagConexao = IndependentTag.Create(
+                            Doc.Document, TagPecaSelecionada.Id, Doc.ActiveView.Id, refe,
+                            true, TagOrientation.Horizontal, PosicaoFinal);
+
+                            t.Commit();
+
+                            if (tagConexao != null)
+                            {
+                                TagsPecasDoUnmep.Add(tagConexao.Id);
+                            }
+                        }
+                        catch (Exception er)
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+        }
+
+        public string GetName()
+        {
+            return "Comando Tags Peças";
+        }
+    }
+
     internal class TagsDisponiveis
     {
         public void JanelaRevit(object sender, EventArgs e)

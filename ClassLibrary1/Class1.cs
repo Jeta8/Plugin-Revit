@@ -27,6 +27,14 @@ namespace ClassLibrary1
             ExternalEvent ComandoTagsConexoes = ExternalEvent.Create(TagsConexoes.GetInstance);
             TagsConexoes.GetInstance.TagsConex = ComandoTagsConexoes;
 
+            // Evento para adicionar as tags nos acessorios
+            ExternalEvent ComandoTagsAcessorios = ExternalEvent.Create(TagsAcessorios.GetInstance);
+            TagsAcessorios.GetInstance.TagsAcess = ComandoTagsAcessorios;
+
+            // Evento para adicionar as tags nas peças
+            ExternalEvent ComandoTagsPecas = ExternalEvent.Create(TagsPecasHidro.GetInstance);
+            TagsPecasHidro.GetInstance.TagsPecas = ComandoTagsPecas;
+
             // Evento para abrir a janela do plugin
             UIApplication uiapp = commandData.Application;
             UserControl2 janela = new UserControl2(uiapp.ActiveUIDocument);

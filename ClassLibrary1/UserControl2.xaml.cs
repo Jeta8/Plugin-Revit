@@ -37,11 +37,15 @@ namespace ClassLibrary1
         public static string NomeTagSelecionada = "";
         public static string NomeTagConexaoSelecionada = "";
         public static string NomeTagAcessorioSelecionado = "";
+        public static string NomeTagPecaSelecionada = "";
 
 
         public static string TipoTagSelecionada = "";
         public static string TipoTagConexaoSelecionada = "";
         public static string TipoTagAcessorioSelecionado = "";
+        public static string TipoTagPecaSelecionado = "";
+
+
         public UserControl2()
         {
         }
@@ -64,31 +68,32 @@ namespace ClassLibrary1
                  new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
 
             //Conexões
-            ICollection<Element> conexoes =
-                 new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
+          
             ICollection<Element> tagsconexoes =
                  new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
 
             // Acessorios
-            ICollection<Element> acessorios =
-                 new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeAccessory).ToElements();
+         
             ICollection<Element> tagsacessorios =
-                 new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeAccessoryTags).ToElements();
+                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeAccessoryTags).ToElements();
 
+            // Peças Hidro Sanitárias
+
+           ICollection<Element> tagspecas = 
+                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
 
 
             IList<string> NomesAdicionados = new List<string>();
 
             IList<string> TagsAdicionados = new List<string>();
 
-            IList<string> ConexoesAdiconadas = new List<string>();
 
             IList<string> TagsConexoesAdicionados = new List<string>();
 
-            IList<string> AcessoriosAdicionados = new List<string>();
 
             IList<string> TagsAcessoriosAdicionados = new List<string>();
 
+            IList<string> TagsPecasAdicionados = new List<string>();
 
 
 
@@ -134,19 +139,36 @@ namespace ClassLibrary1
                     }
                 }
             }
-            foreach (Element b in acessorios)
+            
+            
+            foreach (Element v in tagsacessorios)
             {
                 // Aqui verifica os tipos de tags que o usuário tem em todo o projeto dele
-                Parameter g = b.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME);
-                if (g != null && g.AsString() != null)
+                Parameter d = v.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME);
+                if (d != null && d.AsString() != null)
                 {
-                    if (!AcessoriosAdicionados.Contains(g.AsString()))
+                    if (!TagsAcessoriosAdicionados.Contains(d.AsString()))
                     {
-                        ComboListaConexoes.Items.Add(g.AsString());
-                        AcessoriosAdicionados.Add(g.AsString());
+                        ComboListaTagsAcessorios.Items.Add(d.AsString());
+                        TagsAcessoriosAdicionados.Add(d.AsString());
                     }
                 }
             }
+            foreach (Element n in tagspecas)
+            {
+                // Aqui verifica os tipos de tags que o usuário tem em todo o projeto dele
+                Parameter d = n.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME);
+                if (d != null && d.AsString() != null)
+                {
+                    if (!TagsPecasAdicionados.Contains(d.AsString()))
+                    {
+                        ComboListaTagsPecas.Items.Add(d.AsString());
+                        TagsPecasAdicionados.Add(d.AsString());
+                    }
+                }
+            }
+
+
 
         }
 
@@ -209,6 +231,7 @@ namespace ClassLibrary1
             e.Handled = regex.IsMatch(e.Text);
         }
 
+        // Tags nas tubulações
         private void AdicionarTags_Click(object sender, RoutedEventArgs e)
         {
             ComandoTags.GetInstance.cTags.Raise();
@@ -280,6 +303,7 @@ namespace ClassLibrary1
             TipoTagSelecionada = ComboListaInstancias.SelectedItem.ToString();
         }
 
+        // Limpar Tags
         private void LimparTags_Click(object sender, RoutedEventArgs e)
         {
             ComandoLimpeza.GetInstance.LimpezaTags.Raise();
@@ -298,15 +322,12 @@ namespace ClassLibrary1
                 return;
 
             NomeTagConexaoSelecionada = ComboListaTagsConexoes.SelectedItem.ToString();
-            NomeTagAcessorioSelecionado = ComboListaTagsConexoes.SelectedItem.ToString();
+           
 
             ICollection<Element> tagsconexoes =
              new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
 
-            ICollection<Element> tagsacessorios =
-            new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeAccessoryTags).ToElements();
-
-
+           
             // Conexões
             foreach (Element h in tagsconexoes)
             {
@@ -346,55 +367,6 @@ namespace ClassLibrary1
                         }
                     }
                 }
-
-                catch (Exception)
-                {
-                    continue;
-                }
-            }
-
-
-            // Acessórios
-
-            foreach (Element m in tagsacessorios)
-            {
-                try
-                {
-                    dynamic acessorio = m;
-                    dynamic isFamilyInstanceConex = acessorio.Family;
-
-                    if (isFamilyInstanceConex == null)
-                    {
-                        tagsacessorios.Remove(m);
-                    }
-                }
-                catch (Exception)
-                {
-                }
-            }
-            
-            foreach (Element m in tagsacessorios)
-            { // Adiciona as instâncias ( Direção e tamanho da tag )
-                try
-                {
-                    dynamic acessorio = m;
-                    dynamic isFamilyInstanceAcess = acessorio.Family;
-
-                    if (isFamilyInstanceAcess != null)
-                    {
-                        FamilySymbol instanciaacessorio = m as FamilySymbol;
-                        string nomeFamilia = instanciaacessorio.FamilyName;
-
-                        if (instanciaacessorio != null && NomeTagConexaoSelecionada.Equals(nomeFamilia))
-                        {
-                            if (!ComboListaInstanciasConexoes.Items.Contains(instanciaacessorio.Name))
-                            {
-                                ComboListaInstanciasConexoes.Items.Add(instanciaacessorio.Name);
-                            }
-                        }
-                    }
-                }
-
                 catch (Exception)
                 {
                     continue;
@@ -409,7 +381,148 @@ namespace ClassLibrary1
                 return;
 
             TipoTagConexaoSelecionada = ComboListaInstanciasConexoes.SelectedItem.ToString();
-            TipoTagAcessorioSelecionado = ComboListaInstanciasConexoes.SelectedItem.ToString();
+            
+        }
+
+        // Acessórios
+        private void AdicionarTagsAcessorios_Click(object sender, RoutedEventArgs e)
+        {
+            TagsAcessorios.GetInstance.TagsAcess.Raise();
+        }
+
+        private void ComboListaAcessorios_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            
+
+            NomeTagAcessorioSelecionado = ComboListaTagsAcessorios.SelectedItem.ToString();
+
+            ICollection<Element> tagsacessorios =
+           new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeAccessoryTags).ToElements();
+
+
+            foreach (Element m in tagsacessorios)
+            {
+                try
+                {
+                    dynamic acessorio = m;
+                    dynamic isFamilyInstanceAcess = acessorio.Family;
+
+                    if (isFamilyInstanceAcess == null)
+                    {
+                        tagsacessorios.Remove(m);
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            ComboListaInstanciasAcessorios.Items.Clear();
+            foreach (Element m in tagsacessorios)
+            { // Adiciona as instâncias ( Direção e tamanho da tag )
+                try
+                {
+                    dynamic acessorio = m;
+                    dynamic isFamilyInstanceAcess = acessorio.Family;
+
+                    if (isFamilyInstanceAcess != null)
+                    {
+                        FamilySymbol instanciaacessorio = m as FamilySymbol;
+                        string nomeFamilia = instanciaacessorio.FamilyName;
+
+                        if (instanciaacessorio != null && NomeTagAcessorioSelecionado.Equals(nomeFamilia))
+                        {
+                            if (!ComboListaInstanciasAcessorios.Items.Contains(instanciaacessorio.Name))
+                            {
+                                ComboListaInstanciasAcessorios.Items.Add(instanciaacessorio.Name);
+                            }
+                        }
+                    }
+                }
+
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+        }
+
+        private void ComboListaInstanciasAcessorios_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboListaInstanciasAcessorios.SelectedIndex == -1)
+                return;
+
+            TipoTagAcessorioSelecionado = ComboListaInstanciasAcessorios.SelectedItem.ToString();
+        }
+
+        // Peças
+        private void ComboListaTagsPecas_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            NomeTagPecaSelecionada = ComboListaTagsPecas.SelectedItem.ToString();
+
+            ICollection<Element> tagspecas =
+           new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
+
+
+            foreach (Element m in tagspecas)
+            {
+                try
+                {
+                    dynamic peca = m;
+                    dynamic isFamilyInstanceAcess = peca.Family;
+
+                    if (isFamilyInstanceAcess == null)
+                    {
+                        tagspecas.Remove(m);
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            ComboListaInstanciasPecas.Items.Clear();
+            foreach (Element m in tagspecas)
+            { // Adiciona as instâncias ( Direção e tamanho da tag )
+                try
+                {
+                    dynamic peca = m;
+                    dynamic isFamilyInstancePecas = peca.Family;
+
+                    if (isFamilyInstancePecas != null)
+                    {
+                        FamilySymbol instanciapeca = m as FamilySymbol;
+                        string nomeFamilia = instanciapeca.FamilyName;
+
+                        if (instanciapeca != null && NomeTagPecaSelecionada.Equals(nomeFamilia))
+                        {
+                            if (!ComboListaInstanciasPecas.Items.Contains(instanciapeca.Name))
+                            {
+                                ComboListaInstanciasPecas.Items.Add(instanciapeca.Name);
+                            }
+                        }
+                    }
+                }
+
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+        }
+
+        private void ComboListaInstanciasPecas_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboListaInstanciasPecas.SelectedIndex == -1)
+                return;
+
+            TipoTagPecaSelecionado = ComboListaInstanciasPecas.SelectedItem.ToString();
+        }
+
+        private void AdicionarTagsPecas_Click(object sender, RoutedEventArgs e)
+        {
+            TagsPecasHidro.GetInstance.TagsPecas.Raise();
         }
     }
 }
