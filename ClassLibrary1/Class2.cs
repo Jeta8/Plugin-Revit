@@ -456,6 +456,9 @@ namespace SegundaBiblioteca
                             Doc.Document, TagAcessorioSelecionado.Id, Doc.ActiveView.Id, refe,
                             true, TagOrientation.Horizontal, PosicaoFinal);
 
+                            var callLine = tagConexao.get_Parameter(BuiltInParameter.LEADER_LINE);
+                            callLine.Set(1/2);
+
                             t.Commit();
 
                             if (tagConexao != null)
@@ -581,18 +584,20 @@ namespace SegundaBiblioteca
                         try
                         {
                             // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
-                            Transaction t = new Transaction(Doc.Document, "Adicionar Tag no Peça");
+                            Transaction t = new Transaction(Doc.Document, "Adicionar Tag na Peça");
                             t.Start();
-
-                            IndependentTag tagConexao = IndependentTag.Create(
+                            
+                            IndependentTag tagPeca = IndependentTag.Create(
                             Doc.Document, TagPecaSelecionada.Id, Doc.ActiveView.Id, refe,
                             true, TagOrientation.Horizontal, PosicaoFinal);
 
+                            tagPeca.LeaderElbow = PosicaoFinal;
+                            tagPeca.geome
                             t.Commit();
 
-                            if (tagConexao != null)
+                            if (tagPeca != null)
                             {
-                                TagsPecasDoUnmep.Add(tagConexao.Id);
+                                TagsPecasDoUnmep.Add(tagPeca.Id);
                             }
                         }
                         catch (Exception er)
