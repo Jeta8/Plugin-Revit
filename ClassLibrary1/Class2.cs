@@ -102,7 +102,7 @@ namespace SegundaBiblioteca
                         {
                             var refe = new Reference(item);
 
-                            XYZ PosicaoFinalTag = null;
+                           
                             // Determina a posição da Tag (XYZ)
                             var posicaoTag = item.get_BoundingBox(Doc.ActiveView).Max;
                             var posicaominima = item.get_BoundingBox(Doc.ActiveView).Min;
@@ -457,7 +457,10 @@ namespace SegundaBiblioteca
                             true, TagOrientation.Horizontal, PosicaoFinal);
 
                             var callLine = tagConexao.get_Parameter(BuiltInParameter.LEADER_LINE);
-                            callLine.Set(1/2);
+                            callLine.Set(1);
+                            //LeaderElbow para mudar posição 
+                            // https://forums.autodesk.com/t5/revit-api-forum/default-leader-length/td-p/9813768
+
 
                             t.Commit();
 
@@ -592,7 +595,7 @@ namespace SegundaBiblioteca
                             true, TagOrientation.Horizontal, PosicaoFinal);
 
                             tagPeca.LeaderElbow = PosicaoFinal;
-                            tagPeca.geome
+                            //tagPeca.
                             t.Commit();
 
                             if (tagPeca != null)
