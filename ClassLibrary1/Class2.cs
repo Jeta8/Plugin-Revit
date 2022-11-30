@@ -512,6 +512,8 @@ namespace SegundaBiblioteca
             ICollection<Element> pecas =
               new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtures).ToElements();
 
+            ICollection<Element> conecctors =
+              new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_ConnectorElem).ToElements();
 
             ICollection<Element> tagspecas =
                  new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
@@ -584,7 +586,7 @@ namespace SegundaBiblioteca
                         var DifPosZ = (posicaoTagPecas.Z - posicaominimaPecas.Z);
 
                         XYZ PosicaoFinal = new XYZ(posicaoTagPecas.X - (DifPosX / 2), posicaoTagPecas.Y - (DifPosY / 2), posicaoTagPecas.Z - (DifPosZ / 2));
-                        XYZ PosicaoCh = new XYZ(posicaoTagPecas.X - (DifPosX / 2), posicaoTagPecas.Y - (DifPosY / 2), posicaoTagPecas.Z - DifPosZ);
+                        XYZ PosicaoCh = new XYZ(posicaoTagPecas.X - (DifPosX / 2), posicaoTagPecas.Y - (DifPosY / 2), posicaoTagPecas.Z);
                         try
                         {
                             // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
@@ -597,7 +599,7 @@ namespace SegundaBiblioteca
                             if (DifPosZ > 3)
                             {
                                 tagPeca.LeaderElbow = PosicaoFinal;
-                                tagPeca.TagHeadPosition = PosicaoCh;
+                                
                                 
                                 t.Commit();
 
