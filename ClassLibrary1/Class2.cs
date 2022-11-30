@@ -102,7 +102,7 @@ namespace SegundaBiblioteca
                         {
                             var refe = new Reference(item);
 
-                           
+
                             // Determina a posição da Tag (XYZ)
                             var posicaoTag = item.get_BoundingBox(Doc.ActiveView).Max;
                             var posicaominima = item.get_BoundingBox(Doc.ActiveView).Min;
@@ -225,7 +225,7 @@ namespace SegundaBiblioteca
         public ExternalEvent TagsConex;
 
         public static ICollection<ElementId> TagsConexoesDoUnmep = new Collection<ElementId>();
-        
+
 
         // Constructor
         private TagsConexoes()
@@ -251,9 +251,9 @@ namespace SegundaBiblioteca
             ICollection<Element> tagsconexoes =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
 
-         
+
             Element TagConexSelecionada = null;
-            
+
             foreach (Element g in tagsconexoes)
             {
                 try
@@ -456,11 +456,11 @@ namespace SegundaBiblioteca
                             Doc.Document, TagAcessorioSelecionado.Id, Doc.ActiveView.Id, refe,
                             true, TagOrientation.Horizontal, PosicaoFinal);
 
-                            var callLine = tagConexao.get_Parameter(BuiltInParameter.LEADER_LINE);
-                            callLine.Set(1);
-                            //LeaderElbow para mudar posição 
+                            //var callLine = tagConexao.get_Parameter(BuiltInParameter.LEADER_LINE);
+                            //callLine.Set(1);
+                            tagConexao.LeaderElbow = PosicaoFinal;
+                            // LeaderElbow para mudar posição 
                             // https://forums.autodesk.com/t5/revit-api-forum/default-leader-length/td-p/9813768
-
 
                             t.Commit();
 
@@ -511,6 +511,7 @@ namespace SegundaBiblioteca
 
             ICollection<Element> pecas =
               new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtures).ToElements();
+
 
             ICollection<Element> tagspecas =
                  new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
@@ -583,24 +584,38 @@ namespace SegundaBiblioteca
                         var DifPosZ = (posicaoTagPecas.Z - posicaominimaPecas.Z);
 
                         XYZ PosicaoFinal = new XYZ(posicaoTagPecas.X - (DifPosX / 2), posicaoTagPecas.Y - (DifPosY / 2), posicaoTagPecas.Z - (DifPosZ / 2));
-
+                        XYZ PosicaoCh = new XYZ(posicaoTagPecas.X - (DifPosX / 2), posicaoTagPecas.Y - (DifPosY / 2), posicaoTagPecas.Z - DifPosZ);
                         try
                         {
                             // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
                             Transaction t = new Transaction(Doc.Document, "Adicionar Tag na Peça");
                             t.Start();
-                            
+                         
                             IndependentTag tagPeca = IndependentTag.Create(
                             Doc.Document, TagPecaSelecionada.Id, Doc.ActiveView.Id, refe,
                             true, TagOrientation.Horizontal, PosicaoFinal);
-
-                            tagPeca.LeaderElbow = PosicaoFinal;
-                            //tagPeca.
-                            t.Commit();
-
-                            if (tagPeca != null)
+                            if (DifPosZ > 3)
                             {
-                                TagsPecasDoUnmep.Add(tagPeca.Id);
+                                tagPeca.LeaderElbow = PosicaoFinal;
+                                tagPeca.TagHeadPosition = PosicaoCh;
+                                
+                                t.Commit();
+
+                                if (tagPeca != null)
+                                {
+                                    TagsPecasDoUnmep.Add(tagPeca.Id);
+                                }
+                            }
+                            else
+                            {
+                                tagPeca.LeaderElbow = PosicaoFinal;
+                                
+                                t.Commit();
+
+                                if (tagPeca != null)
+                                {
+                                    TagsPecasDoUnmep.Add(tagPeca.Id);
+                                }
                             }
                         }
                         catch (Exception er)
