@@ -462,8 +462,10 @@ namespace ClassLibrary1
             NomeTagPecaSelecionada = ComboListaTagsPecas.SelectedItem.ToString();
 
             ICollection<Element> tagspecas =
-           new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
+              new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
 
+            ICollection<Element> conecctors =
+              new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_ConnectorElem).ToElements();
 
             foreach (Element m in tagspecas)
             {

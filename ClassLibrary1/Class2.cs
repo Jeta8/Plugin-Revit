@@ -16,6 +16,8 @@ using Autodesk.Revit.DB.Plumbing;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Windows.Ink;
+using Autodesk.Revit.DB.Electrical;
+using System.Diagnostics;
 
 namespace SegundaBiblioteca
 {
@@ -493,6 +495,7 @@ namespace SegundaBiblioteca
         public ExternalEvent TagsPecas;
 
         public static ICollection<ElementId> TagsPecasDoUnmep = new Collection<ElementId>();
+        public static ICollection<ElementId> Conectores = new Collection<ElementId>();
         // Constructor
         private TagsPecasHidro()
         {
@@ -505,6 +508,38 @@ namespace SegundaBiblioteca
                 return _instancia;
             }
         }
+        static ConnectorSet GetConnectors(Element e)
+        {
+            ConnectorSet connectors = null;
+
+            if (e is FamilyInstance)
+            {
+                MEPModel m = ((FamilyInstance)e).MEPModel;
+
+                if (null != m
+                  && null != m.ConnectorManager)
+                {
+                    connectors = m.ConnectorManager.Connectors;
+
+                }
+            }
+            else
+            {
+                Debug.Assert(
+                  e.GetType().IsSubclassOf(typeof(MEPCurve)),
+                  "expected all candidate connector provider "
+                  + "elements to be either family instances or "
+                  + "derived from MEPCurve");
+
+                if (e is MEPCurve)
+                {
+                    connectors = ((MEPCurve)e)
+                      .ConnectorManager.Connectors;
+                }
+            }
+
+            return connectors;
+        }
         public void Execute(UIApplication app)
         {
             UIDocument Doc = app.ActiveUIDocument;
@@ -512,11 +547,12 @@ namespace SegundaBiblioteca
             ICollection<Element> pecas =
               new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtures).ToElements();
 
-            ICollection<Element> conecctors =
-              new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_ConnectorElem).ToElements();
+
 
             ICollection<Element> tagspecas =
                  new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
+
+
 
             Element TagPecaSelecionada = null;
 
@@ -573,8 +609,8 @@ namespace SegundaBiblioteca
                         }
                         catch (Exception e) { }
 
-
                         var refe = new Reference(itempecas);
+
                         // Determina a posição da Tag (XYZ)
                         var posicaoTagPecas = itempecas.get_BoundingBox(Doc.ActiveView).Max;
                         var posicaominimaPecas = itempecas.get_BoundingBox(Doc.ActiveView).Min;
@@ -585,33 +621,30 @@ namespace SegundaBiblioteca
                         var DifPosY = (posicaoTagPecas.Y - posicaominimaPecas.Y);
                         var DifPosZ = (posicaoTagPecas.Z - posicaominimaPecas.Z);
 
+
                         XYZ PosicaoFinal = new XYZ(posicaoTagPecas.X - (DifPosX / 2), posicaoTagPecas.Y - (DifPosY / 2), posicaoTagPecas.Z - (DifPosZ / 2));
-                        XYZ PosicaoCh = new XYZ(posicaoTagPecas.X - (DifPosX / 2), posicaoTagPecas.Y - (DifPosY / 2), posicaoTagPecas.Z);
+
                         try
                         {
                             // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
                             Transaction t = new Transaction(Doc.Document, "Adicionar Tag na Peça");
                             t.Start();
-                         
-                            IndependentTag tagPeca = IndependentTag.Create(
-                            Doc.Document, TagPecaSelecionada.Id, Doc.ActiveView.Id, refe,
-                            true, TagOrientation.Horizontal, PosicaoFinal);
-                            if (DifPosZ > 3)
-                            {
-                                tagPeca.LeaderElbow = PosicaoFinal;
-                                
-                                
-                                t.Commit();
 
-                                if (tagPeca != null)
-                                {
-                                    TagsPecasDoUnmep.Add(tagPeca.Id);
-                                }
-                            }
-                            else
+                            var sd = GetConnectors(itempecas);
+
+                            foreach (Connector k in sd)
                             {
-                                tagPeca.LeaderElbow = PosicaoFinal;
-                                
+                                var posicConec = k.Origin;
+                                IndependentTag tagPeca = IndependentTag.Create(
+                                 Doc.Document, TagPecaSelecionada.Id, Doc.ActiveView.Id, refe,
+                                 true, TagOrientation.Horizontal, posicConec);
+                           
+                                 // tagPeca.LeaderElbow = posicConec;
+                               
+                                // tagPeca.TagHeadPosition= posicConec;
+
+
+
                                 t.Commit();
 
                                 if (tagPeca != null)
