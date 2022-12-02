@@ -92,13 +92,11 @@ namespace SegundaBiblioteca
 
                 foreach (Element item in tubulacoes)
                 {
-                    Parameter Comprimento = item.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
-                    Parameter DiametroTub = item.get_Parameter(BuiltInParameter.RBS_PIPE_DIAMETER_PARAM);
+                    Parameter Comprimento = item.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);                  
 
                     if (Comprimento != null)
                     {
-                        double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
-                        double ValorDiametro = UnitUtils.Convert(DiametroTub.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_MILLIMETERS);
+                        double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);                     
 
                         if (ValorComprimento >= UserControl2.ValorUsuario)
                         {
@@ -114,11 +112,8 @@ namespace SegundaBiblioteca
                             var DifPosX = (posicaoTag.X - posicaominima.X);
                             var DifPosY = (posicaoTag.Y - posicaominima.Y);
                             var DifPosZ = (posicaoTag.Z - posicaominima.Z);
-                            var DifDiam = (((ValorDiametro / 2) * 0.01) - 0.04);
 
                             XYZ PosicaoFinal = new XYZ((posicaoTag.X - (DifPosX / 2)), posicaoTag.Y - (DifPosY / 2), posicaoTag.Z - (DifPosZ / 2));
-
-
 
                             try
                             {
@@ -508,7 +503,7 @@ namespace SegundaBiblioteca
                 return _instancia;
             }
         }
-        static ConnectorSet GetConnectors(Element e)
+        public static ConnectorSet GetConnectors(Element e)
         {
             ConnectorSet connectors = null;
 
@@ -524,13 +519,7 @@ namespace SegundaBiblioteca
                 }
             }
             else
-            {
-                Debug.Assert(
-                  e.GetType().IsSubclassOf(typeof(MEPCurve)),
-                  "expected all candidate connector provider "
-                  + "elements to be either family instances or "
-                  + "derived from MEPCurve");
-
+            {            
                 if (e is MEPCurve)
                 {
                     connectors = ((MEPCurve)e)
@@ -543,7 +532,7 @@ namespace SegundaBiblioteca
         public void Execute(UIApplication app)
         {
             UIDocument Doc = app.ActiveUIDocument;
-
+            
             ICollection<Element> pecas =
               new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtures).ToElements();
 
@@ -634,16 +623,35 @@ namespace SegundaBiblioteca
 
                             foreach (Connector k in sd)
                             {
+                                if (k.Direction == FlowDirectionType.Out)
+                                continue; 
+
                                 var posicConec = k.Origin;
+                               
                                 IndependentTag tagPeca = IndependentTag.Create(
                                  Doc.Document, TagPecaSelecionada.Id, Doc.ActiveView.Id, refe,
-                                 true, TagOrientation.Horizontal, posicConec);
-                           
-                                 // tagPeca.LeaderElbow = posicConec;
+                                 true, TagOrientation.Vertical, posicConec);
+
+                                tagPeca.LeaderEndCondition = LeaderEndCondition.Free;
+                                tagPeca.LeaderEnd = posicConec;
                                
-                                // tagPeca.TagHeadPosition= posicConec;
 
-
+                                if (UserControl2.direcoesNomes == UserControl2.Direcoes.Cima)
+                                {                        
+                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, (posicConec.Z + UserControl2.TamanhoLinhaTag));
+                                }
+                                else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Direita)
+                                {
+                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X + UserControl2.TamanhoLinhaTag, posicConec.Y, posicConec.Z);
+                                }
+                                else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Baixo)
+                                {
+                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, posicConec.Z - UserControl2.TamanhoLinhaTag);
+                                }
+                                else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Esquerda)
+                                {
+                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X - UserControl2.TamanhoLinhaTag, posicConec.Y, posicConec.Z );
+                                }
 
                                 t.Commit();
 

@@ -38,12 +38,17 @@ namespace ClassLibrary1
         public static string NomeTagConexaoSelecionada = "";
         public static string NomeTagAcessorioSelecionado = "";
         public static string NomeTagPecaSelecionada = "";
+        public static string DirecaoTagSelecionada = "";
 
 
         public static string TipoTagSelecionada = "";
         public static string TipoTagConexaoSelecionada = "";
         public static string TipoTagAcessorioSelecionado = "";
         public static string TipoTagPecaSelecionado = "";
+
+        public static double TamanhoLinhaTag = 1;
+
+        public static XYZ DirecaoTagFinal = null;
 
 
         public UserControl2()
@@ -68,19 +73,19 @@ namespace ClassLibrary1
                  new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
 
             //Conexões
-          
+
             ICollection<Element> tagsconexoes =
                  new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
 
             // Acessorios
-         
+
             ICollection<Element> tagsacessorios =
                  new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeAccessoryTags).ToElements();
 
             // Peças Hidro Sanitárias
 
-           ICollection<Element> tagspecas = 
-                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
+            ICollection<Element> tagspecas =
+                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
 
 
             IList<string> NomesAdicionados = new List<string>();
@@ -139,8 +144,8 @@ namespace ClassLibrary1
                     }
                 }
             }
-            
-            
+
+
             foreach (Element v in tagsacessorios)
             {
                 // Aqui verifica os tipos de tags que o usuário tem em todo o projeto dele
@@ -175,7 +180,7 @@ namespace ClassLibrary1
         public void Selecionar_Sistema_Click(object sender, RoutedEventArgs e)
         {
             ICollection<Element> tubulacoes =
-               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();         
+               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
             IList<ElementId> SistemaSelecionado = new List<ElementId>();
 
             foreach (Element t in tubulacoes)
@@ -192,7 +197,7 @@ namespace ClassLibrary1
                         { // Converte a unidade de comprimento de pés (padrão do Revit) para metros
                             double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
 
-                            if (ValorComprimento >= ValorUsuario) 
+                            if (ValorComprimento >= ValorUsuario)
                             {
                                 SistemaSelecionado.Add(t.Id);
                             }
@@ -322,12 +327,12 @@ namespace ClassLibrary1
                 return;
 
             NomeTagConexaoSelecionada = ComboListaTagsConexoes.SelectedItem.ToString();
-           
+
 
             ICollection<Element> tagsconexoes =
              new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
 
-           
+
             // Conexões
             foreach (Element h in tagsconexoes)
             {
@@ -381,7 +386,7 @@ namespace ClassLibrary1
                 return;
 
             TipoTagConexaoSelecionada = ComboListaInstanciasConexoes.SelectedItem.ToString();
-            
+
         }
 
         // Acessórios
@@ -392,7 +397,7 @@ namespace ClassLibrary1
 
         private void ComboListaAcessorios_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
+
 
             NomeTagAcessorioSelecionado = ComboListaTagsAcessorios.SelectedItem.ToString();
 
@@ -525,6 +530,24 @@ namespace ClassLibrary1
         private void AdicionarTagsPecas_Click(object sender, RoutedEventArgs e)
         {
             TagsPecasHidro.GetInstance.TagsPecas.Raise();
+        }
+
+        public enum Direcoes
+        {
+            Cima = 0,
+            Direita = 1,
+            Baixo = 2,
+            Esquerda = 3
+        }
+        public static Direcoes direcoesNomes = Direcoes.Esquerda;
+        public void ComboListaDirecaoTag_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboListaDirecaoTag.SelectedIndex == -1)
+            {
+                return;
+            }
+
+            direcoesNomes = (Direcoes)ComboListaDirecaoTag.SelectedIndex;                       
         }
     }
 }
