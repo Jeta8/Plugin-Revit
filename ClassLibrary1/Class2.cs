@@ -180,25 +180,26 @@ namespace SegundaBiblioteca
 
             if (uTag != null || ConTag != null || AcessTag != null || PecasTag != null)
             {
-                Transaction p = new Transaction(app.ActiveUIDocument.Document, "Limpar Tag");
-                p.Start();
+                
                 try
                 {
+                    Transaction p = new Transaction(app.ActiveUIDocument.Document, "Limpar Tag");
+                    p.Start();
                     foreach (ElementId i in uTag)
                     {
-                        app.ActiveUIDocument.Document.Delete(i);
+                        app.ActiveUIDocument.Document.Delete(i);                      
                     }
                     foreach (ElementId o in ConTag)
                     {
-                        app.ActiveUIDocument.Document.Delete(o);
+                        app.ActiveUIDocument.Document.Delete(o);                     
                     }
                     foreach (ElementId u in AcessTag)
                     {
-                        app.ActiveUIDocument.Document.Delete(u);
+                        app.ActiveUIDocument.Document.Delete(u);                       
                     }
                     foreach (ElementId r in PecasTag)
                     {
-                        app.ActiveUIDocument.Document.Delete(r);
+                        app.ActiveUIDocument.Document.Delete(r);                        
                     }
 
                     p.Commit();
@@ -627,14 +628,15 @@ namespace SegundaBiblioteca
                                 continue; 
 
                                 var posicConec = k.Origin;
-                               
+                                var View = Doc.Document.ActiveView.ViewDirection;
                                 IndependentTag tagPeca = IndependentTag.Create(
                                  Doc.Document, TagPecaSelecionada.Id, Doc.ActiveView.Id, refe,
                                  true, TagOrientation.Vertical, posicConec);
 
                                 tagPeca.LeaderEndCondition = LeaderEndCondition.Free;
                                 tagPeca.LeaderEnd = posicConec;
-                               
+                                
+                      
 
                                 if (UserControl2.direcoesNomes == UserControl2.Direcoes.Cima)
                                 {                        
@@ -642,7 +644,7 @@ namespace SegundaBiblioteca
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Direita)
                                 {
-                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X + UserControl2.TamanhoLinhaTag, posicConec.Y, posicConec.Z);
+                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X + UserControl2.TamanhoLinhaTag - View.X, posicConec.Y - View.Y, posicConec.Z - View.Z) ;
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Baixo)
                                 {
@@ -650,16 +652,15 @@ namespace SegundaBiblioteca
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Esquerda)
                                 {
-                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X - UserControl2.TamanhoLinhaTag, posicConec.Y, posicConec.Z );
+                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X - UserControl2.TamanhoLinhaTag - View.X, posicConec.Y - View.Y, posicConec.Z - View.Z) ;
                                 }
-
-                                t.Commit();
-
+                              
                                 if (tagPeca != null)
                                 {
                                     TagsPecasDoUnmep.Add(tagPeca.Id);
-                                }
+                                }                               
                             }
+                            t.Commit();
                         }
                         catch (Exception er)
                         {
