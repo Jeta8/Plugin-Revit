@@ -18,6 +18,7 @@ using System.Linq.Expressions;
 using System.Windows.Ink;
 using Autodesk.Revit.DB.Electrical;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace SegundaBiblioteca
 {
@@ -92,11 +93,11 @@ namespace SegundaBiblioteca
 
                 foreach (Element item in tubulacoes)
                 {
-                    Parameter Comprimento = item.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);                  
+                    Parameter Comprimento = item.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
 
                     if (Comprimento != null)
                     {
-                        double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);                     
+                        double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
 
                         if (ValorComprimento >= UserControl2.ValorUsuario)
                         {
@@ -180,26 +181,26 @@ namespace SegundaBiblioteca
 
             if (uTag != null || ConTag != null || AcessTag != null || PecasTag != null)
             {
-                
+
                 try
                 {
                     Transaction p = new Transaction(app.ActiveUIDocument.Document, "Limpar Tag");
                     p.Start();
                     foreach (ElementId i in uTag)
                     {
-                        app.ActiveUIDocument.Document.Delete(i);                      
+                        app.ActiveUIDocument.Document.Delete(i);
                     }
                     foreach (ElementId o in ConTag)
                     {
-                        app.ActiveUIDocument.Document.Delete(o);                     
+                        app.ActiveUIDocument.Document.Delete(o);
                     }
                     foreach (ElementId u in AcessTag)
                     {
-                        app.ActiveUIDocument.Document.Delete(u);                       
+                        app.ActiveUIDocument.Document.Delete(u);
                     }
                     foreach (ElementId r in PecasTag)
                     {
-                        app.ActiveUIDocument.Document.Delete(r);                        
+                        app.ActiveUIDocument.Document.Delete(r);
                     }
 
                     p.Commit();
@@ -520,7 +521,7 @@ namespace SegundaBiblioteca
                 }
             }
             else
-            {            
+            {
                 if (e is MEPCurve)
                 {
                     connectors = ((MEPCurve)e)
@@ -533,16 +534,12 @@ namespace SegundaBiblioteca
         public void Execute(UIApplication app)
         {
             UIDocument Doc = app.ActiveUIDocument;
-            
+
             ICollection<Element> pecas =
               new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtures).ToElements();
 
-
-
             ICollection<Element> tagspecas =
                  new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
-
-
 
             Element TagPecaSelecionada = null;
 
@@ -625,10 +622,11 @@ namespace SegundaBiblioteca
                             foreach (Connector k in sd)
                             {
                                 if (k.Direction == FlowDirectionType.Out)
-                                continue; 
-
-                                var posicConec = k.Origin;
+                                    continue;
                                 var View = Doc.Document.ActiveView.ViewDirection;
+                                var ViewOrigin = Doc.Document.ActiveView.Origin;
+                                var posicConec = k.Origin;                            
+
                                 IndependentTag tagPeca = IndependentTag.Create(
                                  Doc.Document, TagPecaSelecionada.Id, Doc.ActiveView.Id, refe,
                                  true, TagOrientation.Vertical, posicConec);
@@ -636,29 +634,32 @@ namespace SegundaBiblioteca
                                 tagPeca.LeaderEndCondition = LeaderEndCondition.Free;
                                 tagPeca.LeaderEnd = posicConec;
                                 
-                      
 
                                 if (UserControl2.direcoesNomes == UserControl2.Direcoes.Cima)
-                                {                        
+                                {
                                     tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, (posicConec.Z + UserControl2.TamanhoLinhaTag));
+                                    //XYZ tl = viewToScreen.OfPoint(tagPeca.TagHeadPosition);
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Direita)
                                 {
-                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X + UserControl2.TamanhoLinhaTag - View.X, posicConec.Y - View.Y, posicConec.Z - View.Z) ;
+                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X , posicConec.Y, posicConec.Z);
+                                    //tagPeca.TagHeadPosition = new XYZ(tl.X,tl.Y,tl.Z);
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Baixo)
                                 {
                                     tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, posicConec.Z - UserControl2.TamanhoLinhaTag);
+                                    //XYZ tl = viewToScreen.OfPoint(tagPeca.TagHeadPosition);
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Esquerda)
                                 {
-                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X - UserControl2.TamanhoLinhaTag - View.X, posicConec.Y - View.Y, posicConec.Z - View.Z) ;
+                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X - UserControl2.TamanhoLinhaTag, posicConec.Y, posicConec.Z);
+                                    //XYZ tl = viewToScreen.OfPoint(tagPeca.TagHeadPosition);
                                 }
-                              
+
                                 if (tagPeca != null)
                                 {
                                     TagsPecasDoUnmep.Add(tagPeca.Id);
-                                }                               
+                                }
                             }
                             t.Commit();
                         }
