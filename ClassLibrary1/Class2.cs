@@ -534,6 +534,7 @@ namespace SegundaBiblioteca
         public void Execute(UIApplication app)
         {
             UIDocument Doc = app.ActiveUIDocument;
+            View3D activeView3D = app.ActiveUIDocument.ActiveView as View3D;
 
             ICollection<Element> pecas =
               new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtures).ToElements();
@@ -623,12 +624,16 @@ namespace SegundaBiblioteca
                             {
                                 if (k.Direction == FlowDirectionType.Out)
                                     continue;
-                                var View = Doc.Document.ActiveView.ViewDirection;
-                                var ViewOrigin = Doc.Document.ActiveView.Origin;
-                                var posicConec = k.Origin;                            
+                                var ViewRightX = Doc.Document.ActiveView.RightDirection;
+                                var ViewUpY = Doc.Document.ActiveView.ViewDirection;                               
+                                var ViewDirectionZ = Doc.Document.ActiveView.UpDirection;
+
+                               // eyePosition = X, upDirection = Y, forwardDirection = Z
+                                var Viewtest = activeView3D.GetOrientation().EyePosition;
+                                var posicConec = k.Origin;                  
 
                                 IndependentTag tagPeca = IndependentTag.Create(
-                                 Doc.Document, TagPecaSelecionada.Id, Doc.ActiveView.Id, refe,
+                                 Doc.Document, TagPecaSelecionada.Id, Doc.ActiveGraphicalView.Id, refe,
                                  true, TagOrientation.Vertical, posicConec);
 
                                 tagPeca.LeaderEndCondition = LeaderEndCondition.Free;
@@ -642,8 +647,8 @@ namespace SegundaBiblioteca
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Direita)
                                 {
-                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X , posicConec.Y, posicConec.Z);
-                                    //tagPeca.TagHeadPosition = new XYZ(tl.X,tl.Y,tl.Z);
+                                    //tagPeca.TagHeadPosition = new XYZ((posicConec.X*1) + (ViewRightX.X*1) + UserControl2.TamanhoLinhaTag, posicConec.Y + (ViewUpY.Y*1), posicConec.Z + (ViewDirectionZ.Z*1));
+                                    tagPeca.TagHeadPosition = new XYZ(Viewtest.X - posicConec.X + UserControl2.TamanhoLinhaTag, posicConec.Y, posicConec.Z);
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Baixo)
                                 {
