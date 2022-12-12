@@ -603,6 +603,9 @@ namespace SegundaBiblioteca
                         var posicaoTagPecas = itempecas.get_BoundingBox(Doc.ActiveView).Max;
                         var posicaominimaPecas = itempecas.get_BoundingBox(Doc.ActiveView).Min;
                         var TagSize = posicaoTagPecas.DistanceTo(posicaominimaPecas);
+                        var DistRequire = TagSize*2;
+                        var Sobrepos = true;
+                        var Count = 1;
 
                         // Checagem de posicionamento da tubulação (Horizontal varia em X, Vertical varia em Z)
 
