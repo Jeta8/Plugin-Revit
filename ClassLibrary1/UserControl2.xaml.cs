@@ -46,7 +46,7 @@ namespace ClassLibrary1
         public static string TipoTagAcessorioSelecionado = "";
         public static string TipoTagPecaSelecionado = "";
 
-        public static double TamanhoLinhaTag = 1;
+        public static double TamanhoLinhaTag = 1.5;
 
         public static XYZ DirecaoTagFinal = null;
 

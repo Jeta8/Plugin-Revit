@@ -602,6 +602,7 @@ namespace SegundaBiblioteca
                         // Determina a posição da Tag (XYZ)
                         var posicaoTagPecas = itempecas.get_BoundingBox(Doc.ActiveView).Max;
                         var posicaominimaPecas = itempecas.get_BoundingBox(Doc.ActiveView).Min;
+                        var TagSize = posicaoTagPecas.DistanceTo(posicaominimaPecas);
 
                         // Checagem de posicionamento da tubulação (Horizontal varia em X, Vertical varia em Z)
 
@@ -610,7 +611,9 @@ namespace SegundaBiblioteca
                         var DifPosZ = (posicaoTagPecas.Z - posicaominimaPecas.Z);
 
 
+
                         XYZ PosicaoFinal = new XYZ(posicaoTagPecas.X - (DifPosX / 2), posicaoTagPecas.Y - (DifPosY / 2), posicaoTagPecas.Z - (DifPosZ / 2));
+
 
                         try
                         {
@@ -624,14 +627,11 @@ namespace SegundaBiblioteca
                             {
                                 if (k.Direction == FlowDirectionType.Out)
                                     continue;
-                                var ViewRightX = Doc.Document.ActiveView.RightDirection;
-                                var ViewUpY = Doc.Document.ActiveView.ViewDirection;                               
-                                var ViewDirectionZ = Doc.Document.ActiveView.UpDirection;
 
                                // eyePosition = X, upDirection = Y, forwardDirection = Z
                                 var Viewtest = activeView3D.GetOrientation().EyePosition;
-                                var posicConec = k.Origin;                  
-
+                                var posicConec = k.Origin;
+                                
                                 IndependentTag tagPeca = IndependentTag.Create(
                                  Doc.Document, TagPecaSelecionada.Id, Doc.ActiveGraphicalView.Id, refe,
                                  true, TagOrientation.Vertical, posicConec);
@@ -643,22 +643,18 @@ namespace SegundaBiblioteca
                                 if (UserControl2.direcoesNomes == UserControl2.Direcoes.Cima)
                                 {
                                     tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, (posicConec.Z + UserControl2.TamanhoLinhaTag));
-                                    //XYZ tl = viewToScreen.OfPoint(tagPeca.TagHeadPosition);
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Direita)
-                                {
-                                    //tagPeca.TagHeadPosition = new XYZ((posicConec.X*1) + (ViewRightX.X*1) + UserControl2.TamanhoLinhaTag, posicConec.Y + (ViewUpY.Y*1), posicConec.Z + (ViewDirectionZ.Z*1));
-                                    tagPeca.TagHeadPosition = new XYZ(Viewtest.X - posicConec.X + UserControl2.TamanhoLinhaTag, posicConec.Y, posicConec.Z);
+                                {                              
+                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X + UserControl2.TamanhoLinhaTag, posicConec.Y + UserControl2.TamanhoLinhaTag, posicConec.Z);
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Baixo)
                                 {
                                     tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, posicConec.Z - UserControl2.TamanhoLinhaTag);
-                                    //XYZ tl = viewToScreen.OfPoint(tagPeca.TagHeadPosition);
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Esquerda)
                                 {
-                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X - UserControl2.TamanhoLinhaTag, posicConec.Y, posicConec.Z);
-                                    //XYZ tl = viewToScreen.OfPoint(tagPeca.TagHeadPosition);
+                                    tagPeca.TagHeadPosition = new XYZ(posicConec.X - UserControl2.TamanhoLinhaTag, posicConec.Y - UserControl2.TamanhoLinhaTag, posicConec.Z);
                                 }
 
                                 if (tagPeca != null)
