@@ -39,16 +39,19 @@ namespace ClassLibrary1
         public static string NomeTagAcessorioSelecionado = "";
         public static string NomeTagPecaSelecionada = "";
         public static string DirecaoTagSelecionada = "";
+        public static string MaterialLuvaSelecionado = "";
 
 
         public static string TipoTagSelecionada = "";
         public static string TipoTagConexaoSelecionada = "";
         public static string TipoTagAcessorioSelecionado = "";
         public static string TipoTagPecaSelecionado = "";
+        public static string FamiliaLuvaSelecionada = "";
 
         public static double TamanhoLinhaTag = 1.5;
 
-        public static XYZ DirecaoTagFinal = null;
+
+        
 
 
         public UserControl2()
@@ -60,6 +63,9 @@ namespace ClassLibrary1
             InitializeComponent();
             Doc = doc;
             VerificarSistemas();
+
+            ProjectLocationSet pa = new ProjectLocationSet();
+            
         }
 
         public void VerificarSistemas()
@@ -197,7 +203,7 @@ namespace ClassLibrary1
                         { // Converte a unidade de comprimento de pés (padrão do Revit) para metros
                             double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
 
-                            if (ValorComprimento >= ValorUsuario)
+                            if (ValorComprimento >= ValorUsuarioTubo)
                             {
                                 SistemaSelecionado.Add(t.Id);
                             }
@@ -208,7 +214,9 @@ namespace ClassLibrary1
             Doc.Selection.SetElementIds(SistemaSelecionado);
         }
 
-        public static double ValorUsuario = 0;
+        public static double ValorUsuarioTubo = 0;
+        public static double ValorUsuarioLuva = 0;
+
         private void InputComprimento_TextChanged(object sender, TextChangedEventArgs e)
         {
             // Aqui o usuário pode escolher o comprimento específico de tubulações que ele deseja selecionar e/ou adicionar as tags
@@ -216,17 +224,17 @@ namespace ClassLibrary1
             {
                 try
                 {
-                    ValorUsuario = Convert.ToDouble(InputComprimento.Text);
+                    ValorUsuarioTubo = Convert.ToDouble(InputComprimento.Text);
                 }
                 catch (Exception)
                 {
-                    ValorUsuario = 0;
+                    ValorUsuarioTubo = 6;
                     InputComprimento.Text = "";
                 }
             }
             else
             {
-                ValorUsuario = 0;
+                ValorUsuarioTubo = 0;
             }
         }
 
@@ -469,8 +477,6 @@ namespace ClassLibrary1
             ICollection<Element> tagspecas =
               new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
 
-            ICollection<Element> conecctors =
-              new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_ConnectorElem).ToElements();
 
             foreach (Element m in tagspecas)
             {
@@ -548,6 +554,128 @@ namespace ClassLibrary1
             }
 
             direcoesNomes = (Direcoes)ComboListaDirecaoTag.SelectedIndex;                       
+        }
+
+        private void ComboListaLuvasMaterial_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            MaterialLuvaSelecionado = ComboListaLuvasMaterial.SelectedItem.ToString();
+
+            ICollection<Element> luvas =
+                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
+
+            foreach (Element b in luvas)
+            {
+                try
+                {
+                    dynamic luva = b;
+                    dynamic isFamilyInstanceLuvas = luva.Family;
+
+                    if (isFamilyInstanceLuvas == null)
+                    {
+                        luvas.Remove(b);
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            ComboListaLuvasFamilia.Items.Clear();
+
+            foreach (Element m in luvas)
+            { // Adiciona as instâncias ( Direção e tamanho da tag )
+                try
+                {
+                    dynamic luva = m;
+                    dynamic isFamilyInstanceLuvas = luva.Family;
+
+                    if (isFamilyInstanceLuvas != null)
+                    {
+                        FamilySymbol instancialuva = m as FamilySymbol;
+                        string nomeFamilia = instancialuva.FamilyName;
+
+                        if (instancialuva != null && MaterialLuvaSelecionado.Equals(nomeFamilia))
+                        {
+                            if (!ComboListaLuvasFamilia.Items.Contains(instancialuva.Name))
+                            {
+                                ComboListaLuvasFamilia.Items.Add(instancialuva.Name);
+                            }
+                        }
+                    }
+                }
+
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+        }
+
+        private void ComboListaLuvasFamilia_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboListaLuvasFamilia.SelectedIndex == -1)
+                return;
+
+            FamiliaLuvaSelecionada = ComboListaLuvasFamilia.SelectedItem.ToString();
+        }
+
+        private void InputComprimentoLuva_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Aqui o usuário pode escolher o comprimento específico de tubulações que ele deseja selecionar e/ou adicionar as tags
+            if (InputComprimentoLuva.Text != "")
+            {
+                try
+                {
+                    ValorUsuarioLuva = Convert.ToDouble(InputComprimentoLuva.Text);
+                }
+                catch (Exception)
+                {
+                    ValorUsuarioLuva = 0;
+                    InputComprimentoLuva.Text = "";
+                }
+            }
+            else
+            {
+                ValorUsuarioLuva = 0;
+            }
+        }
+
+        private void InputComprimentoLuva_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Filtro de caracteres, para só aceitar números
+            Regex regex = new Regex("[^0-9,]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void AdicionarLuvas_Click(object sender, RoutedEventArgs e)
+        {
+            ICollection<Element> Luvas =
+               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
+            IList<ElementId> LuvasSelecionadas = new List<ElementId>();
+
+            foreach (Element t in Luvas)
+            {
+                // Verificar o sistema selecionado e selecionar apenas as tubulações correspondentes
+                Parameter Sistemas = t.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+                if (Sistemas != null && Sistemas.AsValueString() != null)
+                {
+                    Parameter Comprimento = t.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
+
+                    if (Sistemas.AsValueString().Equals(ComboListaSistema.SelectedItem.ToString()))
+                    {
+                        if (Comprimento != null)
+                        { // Converte a unidade de comprimento de pés (padrão do Revit) para metros
+                            double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
+
+                            if (ValorComprimento == ValorUsuarioLuva)
+                            {
+                                LuvasSelecionadas.Add(t.Id);
+                            }
+                        }
+                    }
+                }
+            }
+            Doc.Selection.SetElementIds(LuvasSelecionadas);
         }
     }
 }

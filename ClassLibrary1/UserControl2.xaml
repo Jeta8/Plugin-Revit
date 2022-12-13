@@ -72,13 +72,24 @@
             <ComboBoxItem>Esquerda</ComboBoxItem>
         </ComboBox>
 
+        <ComboBox x:Name="ComboListaLuvasMaterial" Width="200" Height="25" Margin="550,-250,0,0" SelectionChanged="ComboListaLuvasMaterial_SelectionChanged"/>
+        <ComboBox x:Name="ComboListaLuvasFamilia" Width="200" Height="25" Margin="550,-180,0,0" SelectionChanged="ComboListaLuvasFamilia_SelectionChanged"/>
+        <TextBox x:Name="InputComprimentoLuva" Width="200" Height="25" Margin="550,-110,0,0" Style="{StaticResource placeHolder}" Tag="Demarcar Comprimento (metros)" TextChanged="InputComprimentoLuva_TextChanged" PreviewTextInput="InputComprimentoLuva_PreviewTextInput" />
+
+
+
         <Button x:Name="SelecaoTubos" Width="110" Height="30" VerticalAlignment="Top" Visibility="Visible" Background="#dedfe0" Click="Selecionar_Sistema_Click" Margin="-670,185,0,0" Content="Selecionar Sistema"/>
         <Button x:Name="AdicionarTags" Width="100" Height="30" VerticalAlignment="Top" Margin="-450,185,0,0" Content="Adicionar Tag" Click="AdicionarTags_Click"/>
+       
         <Button x:Name="LimparTags" Width="90" Height="30" VerticalAlignment="Top" Margin="600,300,0,0" Content="Limpar Tags" Click="LimparTags_Click"/>
+       
         <Button x:Name="AdicionarTagsConexoes" Width="100" Height="30" VerticalAlignment="Top" Margin="-550,300,0,0" Content="Tags Conexoes" Click="AdicionarTagsConexoes_Click"/>
 
         <Button x:Name="AdicionarTagsAcessorios" Width="90" Height="30" VerticalAlignment="Top" Margin="0,110,0,0" Content="Tags Acessorios" Click="AdicionarTagsAcessorios_Click"/>
 
         <Button x:Name="AdicionarTagsPecas" Width="90" Height="30" VerticalAlignment="Top" Margin="0,260,0,0" Content="Tags Pecas" Click="AdicionarTagsPecas_Click"/>
+
+        <Button x:Name="AdicionarLuvas" Width="100" Height="30" VerticalAlignment="Top" Margin="550,150,0,0" Content="Adicionar Luvas" Click="AdicionarLuvas_Click" />
+
     </Grid>
 </Window>

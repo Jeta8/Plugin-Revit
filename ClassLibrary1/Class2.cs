@@ -99,7 +99,7 @@ namespace SegundaBiblioteca
                     {
                         double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
 
-                        if (ValorComprimento >= UserControl2.ValorUsuario)
+                        if (ValorComprimento >= UserControl2.ValorUsuarioTubo)
                         {
                             var refe = new Reference(item);
 
@@ -455,11 +455,9 @@ namespace SegundaBiblioteca
                             Doc.Document, TagAcessorioSelecionado.Id, Doc.ActiveView.Id, refe,
                             true, TagOrientation.Horizontal, PosicaoFinal);
 
-                            //var callLine = tagConexao.get_Parameter(BuiltInParameter.LEADER_LINE);
-                            //callLine.Set(1);
-                            tagConexao.LeaderElbow = PosicaoFinal;
-                            // LeaderElbow para mudar posição 
-                            // https://forums.autodesk.com/t5/revit-api-forum/default-leader-length/td-p/9813768
+                            tagConexao.LeaderEndCondition = LeaderEndCondition.Free;
+                            tagConexao.LeaderEnd = PosicaoFinal;
+
 
                             t.Commit();
 
@@ -603,7 +601,7 @@ namespace SegundaBiblioteca
                         var posicaoTagPecas = itempecas.get_BoundingBox(Doc.ActiveView).Max;
                         var posicaominimaPecas = itempecas.get_BoundingBox(Doc.ActiveView).Min;
                         var TagSize = posicaoTagPecas.DistanceTo(posicaominimaPecas);
-                        var DistRequire = TagSize*2;
+                        var DistRequire = TagSize * 2;
                         var Sobrepos = true;
                         var Count = 1;
 
@@ -631,24 +629,27 @@ namespace SegundaBiblioteca
                                 if (k.Direction == FlowDirectionType.Out)
                                     continue;
 
-                               // eyePosition = X, upDirection = Y, forwardDirection = Z
+                                // eyePosition = X, upDirection = Y, forwardDirection = Z
+
                                 var Viewtest = activeView3D.GetOrientation().EyePosition;
                                 var posicConec = k.Origin;
-                                
+
+
                                 IndependentTag tagPeca = IndependentTag.Create(
                                  Doc.Document, TagPecaSelecionada.Id, Doc.ActiveGraphicalView.Id, refe,
                                  true, TagOrientation.Vertical, posicConec);
 
                                 tagPeca.LeaderEndCondition = LeaderEndCondition.Free;
                                 tagPeca.LeaderEnd = posicConec;
-                                
+
+
 
                                 if (UserControl2.direcoesNomes == UserControl2.Direcoes.Cima)
                                 {
                                     tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, (posicConec.Z + UserControl2.TamanhoLinhaTag));
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Direita)
-                                {                              
+                                {
                                     tagPeca.TagHeadPosition = new XYZ(posicConec.X + UserControl2.TamanhoLinhaTag, posicConec.Y + UserControl2.TamanhoLinhaTag, posicConec.Z);
                                 }
                                 else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Baixo)
@@ -683,6 +684,175 @@ namespace SegundaBiblioteca
         public string GetName()
         {
             return "Comando Tags Peças";
+        }
+    }
+
+    public class AdicLuvas : IExternalEventHandler
+    {
+        public ExternalEvent AdicionarLuvas;
+
+        public static ICollection<ElementId> LuvasDoUnmep = new Collection<ElementId>();
+
+        // Constructor
+        private AdicLuvas()
+        {
+        }
+
+        private static readonly AdicLuvas _instancia = new AdicLuvas();
+        public static AdicLuvas GetInstance
+        {
+            get
+            {
+                return _instancia;
+            }
+        }
+        public void Execute(UIApplication app)
+        {
+            UIDocument Doc = app.ActiveUIDocument;
+
+            ICollection<Element> tubulações =
+                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
+
+            ICollection<Element> luvas =
+                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
+
+            Element LuvaSelecionada = null;
+
+            foreach (Element z in luvas)
+            {
+                try
+                {
+                    dynamic elemento = z;
+                    dynamic isFamilyInstance = elemento.Family;
+
+                    if (isFamilyInstance != null)
+                    {
+                        FamilySymbol fcmanager = z as FamilySymbol;
+
+                        if (fcmanager != null)
+                        {
+                            if (fcmanager.Name.Equals(UserControl2.FamiliaLuvaSelecionada))
+                            {
+                                LuvaSelecionada = z;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
+            }
+            if (LuvaSelecionada != null)
+            {
+                foreach (Element tb in tubulações)
+                {
+                    try
+                    {
+                        FamilyInstance VerificarSuperComp = tb as FamilyInstance;
+                        if (VerificarSuperComp != null && VerificarSuperComp.SuperComponent != null)
+                        {
+                            continue;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    Parameter Comprimento = tb.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
+
+                    if (Comprimento != null)
+                    {
+                        double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
+
+                        if (ValorComprimento >= UserControl2.ValorUsuarioLuva)
+                        {
+                            if (tb != null)
+                            {
+                                try
+                                {
+                                    if (tb.LevelId.IntegerValue == -1)
+                                    {
+                                        continue;
+                                    }
+                                }
+                                catch (Exception e) { }
+
+                                var l = UserControl2.ValorUsuarioLuva;
+
+                                //https://github.com/Zizobiko25/Pipe-Split/blob/master/SplitPipes/Class1.cs
+
+                                var refe = new Reference(tb);
+                                Curve c1 = (tb.Location as LocationCurve).Curve;
+                                var tamanhoTotalTubo = UnitUtils.ConvertFromInternalUnits(tb.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH).AsDouble(),
+                                    DisplayUnitType.DUT_MILLIMETERS);
+                                if (tamanhoTotalTubo < 1)
+                                    return;
+
+                                var startPoint = c1.GetEndPoint(0);
+                                var endPoint = c1.GetEndPoint(1);
+                                XYZ splitpoint = (endPoint - startPoint) * (l / tamanhoTotalTubo);
+
+                                var novosplit = startPoint + splitpoint;
+                                Pipe SelectPip = tb as Pipe;
+
+                                Connector startConn = FindConnectedTo(SelectPip, startPoint);
+                                Connector endConn = FindConnectedTo(SelectPip, endPoint);
+
+
+
+                                try
+                                {
+                                    Transaction j = new Transaction(Doc.Document, "Adicionar Luva na tubulação");
+                                    j.Start();
+
+
+
+                                    j.Commit();
+                                }
+                                catch (Exception er)
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static Connector FindConnector(Pipe pipe, XYZ conXYZ)
+        {
+            ConnectorSet conns = pipe.ConnectorManager.Connectors;
+            foreach (Connector conn in conns)
+            {
+                if (conn.Origin.IsAlmostEqualTo(conXYZ))
+                {
+                    return conn;
+                }
+            }
+            return null;
+        }
+        private static Connector FindConnectedTo(Pipe pipe, XYZ conXYZ)
+        {
+            Connector connItself = FindConnector(pipe, conXYZ);
+            ConnectorSet connSet = connItself.AllRefs;
+            foreach (Connector conn in connSet)
+            {
+                if (conn.Owner.Id.IntegerValue != pipe.Id.IntegerValue &&
+                    conn.ConnectorType == ConnectorType.End)
+                {
+                    return conn;
+                }
+            }
+            return null;
+        }
+
+
+        public string GetName()
+        {
+            return "Comando Adicionar Luvas";
         }
     }
 
