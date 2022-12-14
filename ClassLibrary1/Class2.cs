@@ -706,6 +706,33 @@ namespace SegundaBiblioteca
                 return _instancia;
             }
         }
+
+        public static ConnectorSet GetConnectors(Element e)
+        {
+            ConnectorSet connectors = null;
+
+            if (e is FamilyInstance)
+            {
+                MEPModel m = ((FamilyInstance)e).MEPModel;
+
+                if (null != m
+                  && null != m.ConnectorManager)
+                {
+                    connectors = m.ConnectorManager.Connectors;
+
+                }
+            }
+            else
+            {
+                if (e is MEPCurve)
+                {
+                    connectors = ((MEPCurve)e)
+                      .ConnectorManager.Connectors;
+                }
+            }
+
+            return connectors;
+        }
         public void Execute(UIApplication app)
         {
             UIDocument Doc = app.ActiveUIDocument;
@@ -784,6 +811,7 @@ namespace SegundaBiblioteca
                                 //https://github.com/Zizobiko25/Pipe-Split/blob/master/SplitPipes/Class1.cs
 
                                 var refe = new Reference(tb);
+
                                 Curve c1 = (tb.Location as LocationCurve).Curve;
                                 var tamanhoTotalTubo = UnitUtils.ConvertFromInternalUnits(tb.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH).AsDouble(),
                                     DisplayUnitType.DUT_MILLIMETERS);
@@ -807,7 +835,18 @@ namespace SegundaBiblioteca
                                     Transaction j = new Transaction(Doc.Document, "Adicionar Luva na tubulação");
                                     j.Start();
 
+                                    var cf = GetConnectors(tb);
+                                    foreach (Connector c in cf)
+                                    {
+                                        Pipe pipesLuv = Pipe.Create(Doc.Document, LuvaSelecionada.Id,Doc.ActiveGraphicalView.LevelId, startConn, novosplit);
 
+
+                                        if (pipesLuv != null)
+                                        {
+                                            LuvasDoUnmep.Add(pipesLuv.Id);
+                                        }
+                                    }
+                                    
 
                                     j.Commit();
                                 }

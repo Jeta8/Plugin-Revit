@@ -39,6 +39,7 @@ namespace ClassLibrary1
         public static string NomeTagAcessorioSelecionado = "";
         public static string NomeTagPecaSelecionada = "";
         public static string DirecaoTagSelecionada = "";
+
         public static string MaterialLuvaSelecionado = "";
 
 
@@ -46,7 +47,9 @@ namespace ClassLibrary1
         public static string TipoTagConexaoSelecionada = "";
         public static string TipoTagAcessorioSelecionado = "";
         public static string TipoTagPecaSelecionado = "";
+
         public static string FamiliaLuvaSelecionada = "";
+
 
         public static double TamanhoLinhaTag = 1.5;
 
@@ -561,7 +564,7 @@ namespace ClassLibrary1
             MaterialLuvaSelecionado = ComboListaLuvasMaterial.SelectedItem.ToString();
 
             ICollection<Element> luvas =
-                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
+                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
 
             foreach (Element b in luvas)
             {
@@ -583,7 +586,7 @@ namespace ClassLibrary1
             ComboListaLuvasFamilia.Items.Clear();
 
             foreach (Element m in luvas)
-            { // Adiciona as instâncias ( Direção e tamanho da tag )
+            { // Adiciona as instâncias 
                 try
                 {
                     dynamic luva = m;
@@ -592,7 +595,7 @@ namespace ClassLibrary1
                     if (isFamilyInstanceLuvas != null)
                     {
                         FamilySymbol instancialuva = m as FamilySymbol;
-                        string nomeFamilia = instancialuva.FamilyName;
+                        string nomeFamilia = instancialuva.Name;
 
                         if (instancialuva != null && MaterialLuvaSelecionado.Equals(nomeFamilia))
                         {
@@ -649,33 +652,7 @@ namespace ClassLibrary1
 
         private void AdicionarLuvas_Click(object sender, RoutedEventArgs e)
         {
-            ICollection<Element> Luvas =
-               new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
-            IList<ElementId> LuvasSelecionadas = new List<ElementId>();
-
-            foreach (Element t in Luvas)
-            {
-                // Verificar o sistema selecionado e selecionar apenas as tubulações correspondentes
-                Parameter Sistemas = t.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-                if (Sistemas != null && Sistemas.AsValueString() != null)
-                {
-                    Parameter Comprimento = t.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
-
-                    if (Sistemas.AsValueString().Equals(ComboListaSistema.SelectedItem.ToString()))
-                    {
-                        if (Comprimento != null)
-                        { // Converte a unidade de comprimento de pés (padrão do Revit) para metros
-                            double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
-
-                            if (ValorComprimento == ValorUsuarioLuva)
-                            {
-                                LuvasSelecionadas.Add(t.Id);
-                            }
-                        }
-                    }
-                }
-            }
-            Doc.Selection.SetElementIds(LuvasSelecionadas);
+            AdicLuvas.GetInstance.AdicionarLuvas.Raise();
         }
     }
 }
