@@ -54,7 +54,7 @@ namespace ClassLibrary1
         public static double TamanhoLinhaTag = 1.5;
 
 
-        
+
 
 
         public UserControl2()
@@ -68,7 +68,7 @@ namespace ClassLibrary1
             VerificarSistemas();
 
             ProjectLocationSet pa = new ProjectLocationSet();
-            
+
         }
 
         public void VerificarSistemas()
@@ -96,6 +96,12 @@ namespace ClassLibrary1
             ICollection<Element> tagspecas =
                  new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
 
+            // Luvas
+
+            ICollection<Element> luvasT =
+                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
+                
+
 
             IList<string> NomesAdicionados = new List<string>();
 
@@ -108,6 +114,8 @@ namespace ClassLibrary1
             IList<string> TagsAcessoriosAdicionados = new List<string>();
 
             IList<string> TagsPecasAdicionados = new List<string>();
+
+            IList<string> LuvasAdicionadas = new List<string>();
 
 
 
@@ -148,8 +156,16 @@ namespace ClassLibrary1
                 {
                     if (!TagsAdicionados.Contains(k.AsString()))
                     {
-                        ComboListaTagsConexoes.Items.Add(k.AsString());
-                        TagsConexoesAdicionados.Add(k.AsString());
+                        if (ComboListaTagsConexoes.Items.Contains(k.AsString()))
+                        {
+                            continue;
+                        }
+
+                        else
+                        {
+                            ComboListaTagsConexoes.Items.Add(k.AsString());
+                            TagsConexoesAdicionados.Add(k.AsString());
+                        }
                     }
                 }
             }
@@ -168,6 +184,7 @@ namespace ClassLibrary1
                     }
                 }
             }
+
             foreach (Element n in tagspecas)
             {
                 // Aqui verifica os tipos de tags que o usuário tem em todo o projeto dele
@@ -181,7 +198,21 @@ namespace ClassLibrary1
                     }
                 }
             }
-
+            //var filtroUniao = ("União", "Union", "uniao", "união");
+            foreach (Element t in luvasT)
+            {
+                Parameter f = t.get_Parameter(BuiltInParameter.ELEM_CATEGORY_PARAM_MT);
+                
+                
+                if (f != null && f.AsString() != null)
+                {
+                    if (!LuvasAdicionadas.Contains(f.AsString()))
+                    {
+                        ComboListaLuvasMaterial.Items.Add(f.AsString());
+                        LuvasAdicionadas.Add(f.AsString());
+                    }
+                }
+            }
 
 
         }
@@ -296,8 +327,11 @@ namespace ClassLibrary1
 
                         if (instancia != null && NomeTagSelecionada.Equals(nomeFamilia))
                         {
+                            if (ComboListaInstancias.Items.Contains(instancia.Name))
+                                continue;
+
                             if (!ComboListaInstancias.Items.Contains(instancia.Name))
-                            {
+                            {                              
                                 ComboListaInstancias.Items.Add(instancia.Name);
                             }
                         }
@@ -376,9 +410,13 @@ namespace ClassLibrary1
 
                         if (instanciaconexao != null && NomeTagConexaoSelecionada.Equals(nomeFamilia))
                         {
+                            if (ComboListaInstanciasConexoes.Items.Contains(instanciaconexao.Name))
+                                continue;
+
                             if (!ComboListaInstanciasConexoes.Items.Contains(instanciaconexao.Name))
                             {
                                 ComboListaInstanciasConexoes.Items.Add(instanciaconexao.Name);
+
                             }
                         }
                     }
@@ -448,6 +486,8 @@ namespace ClassLibrary1
 
                         if (instanciaacessorio != null && NomeTagAcessorioSelecionado.Equals(nomeFamilia))
                         {
+                            if (ComboListaInstanciasAcessorios.Items.Contains(instanciaacessorio.Name))
+                                continue;
                             if (!ComboListaInstanciasAcessorios.Items.Contains(instanciaacessorio.Name))
                             {
                                 ComboListaInstanciasAcessorios.Items.Add(instanciaacessorio.Name);
@@ -513,6 +553,8 @@ namespace ClassLibrary1
 
                         if (instanciapeca != null && NomeTagPecaSelecionada.Equals(nomeFamilia))
                         {
+                            if (ComboListaInstanciasPecas.Items.Contains(instanciapeca.Name))
+                                continue;
                             if (!ComboListaInstanciasPecas.Items.Contains(instanciapeca.Name))
                             {
                                 ComboListaInstanciasPecas.Items.Add(instanciapeca.Name);
@@ -555,8 +597,7 @@ namespace ClassLibrary1
             {
                 return;
             }
-
-            direcoesNomes = (Direcoes)ComboListaDirecaoTag.SelectedIndex;                       
+            direcoesNomes = (Direcoes)ComboListaDirecaoTag.SelectedIndex;
         }
 
         private void ComboListaLuvasMaterial_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -564,7 +605,7 @@ namespace ClassLibrary1
             MaterialLuvaSelecionado = ComboListaLuvasMaterial.SelectedItem.ToString();
 
             ICollection<Element> luvas =
-                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFittingTags).ToElements();
+                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
 
             foreach (Element b in luvas)
             {
@@ -599,6 +640,9 @@ namespace ClassLibrary1
 
                         if (instancialuva != null && MaterialLuvaSelecionado.Equals(nomeFamilia))
                         {
+                            if (ComboListaLuvasFamilia.Items.Contains(instancialuva.Name))
+                                continue;
+
                             if (!ComboListaLuvasFamilia.Items.Contains(instancialuva.Name))
                             {
                                 ComboListaLuvasFamilia.Items.Add(instancialuva.Name);
