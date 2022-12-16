@@ -1,5 +1,6 @@
 ﻿
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Mechanical;
 using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
 using SegundaBiblioteca;
@@ -53,7 +54,7 @@ namespace ClassLibrary1
 
         public static double TamanhoLinhaTag = 1.5;
 
-
+        public static string SistemaAlvo = ""; 
 
 
 
@@ -100,7 +101,7 @@ namespace ClassLibrary1
 
             ICollection<Element> luvasT =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
-                
+
 
 
             IList<string> NomesAdicionados = new List<string>();
@@ -198,23 +199,33 @@ namespace ClassLibrary1
                     }
                 }
             }
-            //var filtroUniao = ("União", "Union", "uniao", "união");
+
             foreach (Element t in luvasT)
             {
-                Parameter f = t.get_Parameter(BuiltInParameter.ELEM_CATEGORY_PARAM_MT);
                 
-                
-                if (f != null && f.AsString() != null)
+                //var getCon = TagsPecasHidro.GetConnectors(t);
+                try
                 {
-                    if (!LuvasAdicionadas.Contains(f.AsString()))
+                    if (t.GetType().ToString().Equals("Autodesk.Revit.DB.FamilyInstance"))
                     {
-                        ComboListaLuvasMaterial.Items.Add(f.AsString());
-                        LuvasAdicionadas.Add(f.AsString());
+                        FamilyInstance p = t as FamilyInstance;
+                        MechanicalFitting y = p.MEPModel as MechanicalFitting;
+
+                        if (y.PartType == PartType.Union)
+                        {
+                            Parameter f = t.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM);
+                            if (!LuvasAdicionadas.Contains(f.AsValueString()))
+                            {
+                                ComboListaLuvasMaterial.Items.Add(f.AsValueString());
+                                LuvasAdicionadas.Add(f.AsValueString());
+                            }
+                        }
                     }
                 }
+                catch (Exception e)
+                {
+                }  
             }
-
-
         }
 
         public void Selecionar_Sistema_Click(object sender, RoutedEventArgs e)
@@ -240,6 +251,7 @@ namespace ClassLibrary1
                             if (ValorComprimento >= ValorUsuarioTubo)
                             {
                                 SistemaSelecionado.Add(t.Id);
+                               
                             }
                         }
                     }
@@ -331,7 +343,7 @@ namespace ClassLibrary1
                                 continue;
 
                             if (!ComboListaInstancias.Items.Contains(instancia.Name))
-                            {                              
+                            {
                                 ComboListaInstancias.Items.Add(instancia.Name);
                             }
                         }
@@ -416,7 +428,6 @@ namespace ClassLibrary1
                             if (!ComboListaInstanciasConexoes.Items.Contains(instanciaconexao.Name))
                             {
                                 ComboListaInstanciasConexoes.Items.Add(instanciaconexao.Name);
-
                             }
                         }
                     }
@@ -495,7 +506,6 @@ namespace ClassLibrary1
                         }
                     }
                 }
-
                 catch (Exception)
                 {
                     continue;
@@ -519,7 +529,6 @@ namespace ClassLibrary1
 
             ICollection<Element> tagspecas =
               new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtureTags).ToElements();
-
 
             foreach (Element m in tagspecas)
             {
@@ -562,7 +571,6 @@ namespace ClassLibrary1
                         }
                     }
                 }
-
                 catch (Exception)
                 {
                     continue;
@@ -623,47 +631,6 @@ namespace ClassLibrary1
                 {
                 }
             }
-
-            ComboListaLuvasFamilia.Items.Clear();
-
-            foreach (Element m in luvas)
-            { // Adiciona as instâncias 
-                try
-                {
-                    dynamic luva = m;
-                    dynamic isFamilyInstanceLuvas = luva.Family;
-
-                    if (isFamilyInstanceLuvas != null)
-                    {
-                        FamilySymbol instancialuva = m as FamilySymbol;
-                        string nomeFamilia = instancialuva.Name;
-
-                        if (instancialuva != null && MaterialLuvaSelecionado.Equals(nomeFamilia))
-                        {
-                            if (ComboListaLuvasFamilia.Items.Contains(instancialuva.Name))
-                                continue;
-
-                            if (!ComboListaLuvasFamilia.Items.Contains(instancialuva.Name))
-                            {
-                                ComboListaLuvasFamilia.Items.Add(instancialuva.Name);
-                            }
-                        }
-                    }
-                }
-
-                catch (Exception)
-                {
-                    continue;
-                }
-            }
-        }
-
-        private void ComboListaLuvasFamilia_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ComboListaLuvasFamilia.SelectedIndex == -1)
-                return;
-
-            FamiliaLuvaSelecionada = ComboListaLuvasFamilia.SelectedItem.ToString();
         }
 
         private void InputComprimentoLuva_TextChanged(object sender, TextChangedEventArgs e)
@@ -697,6 +664,11 @@ namespace ClassLibrary1
         private void AdicionarLuvas_Click(object sender, RoutedEventArgs e)
         {
             AdicLuvas.GetInstance.AdicionarLuvas.Raise();
+        }
+
+        private void ComboListaSistema_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SistemaAlvo = ComboListaSistema.SelectedItem.ToString();
         }
     }
 }

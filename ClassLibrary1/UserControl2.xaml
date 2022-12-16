@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:ClassLibrary1"
              mc:Ignorable="d"          
              Width="800"
-             Height="380"
+             Height= "400"
              Title="Tags UnMEP"
              x:Name="JanelaPlugin"
              ResizeMode="NoResize">
@@ -51,7 +51,7 @@
 
 
         <TextBox x:Name="InputComprimento" Width="200" Height="25" Margin="-550,-40,0,0" Style="{StaticResource placeHolder}" Tag="Demarcar Comprimento (metros)" TextChanged="InputComprimento_TextChanged" PreviewTextInput="InputComprimento_PreviewTextInput" />
-        <ComboBox x:Name="ComboListaSistema" Width="200" Height="25" Margin="0,0,550,250"/>
+        <ComboBox x:Name="ComboListaSistema" Width="200" Height="25" Margin="0,0,550,250" SelectionChanged="ComboListaSistema_SelectionChanged"/>
         <ComboBox x:Name="ComboListaTags" Width="200" Height="25"  Margin="0,0,550,180" SelectionChanged="ComboListaTags_SelectionChanged"/>
         <ComboBox x:Name="ComboListaInstancias" Width="200" Height="25"  Margin="0,0,550,110" SelectionChanged="ComboListaInstancias_SelectionChanged" />
 
@@ -73,8 +73,8 @@
         </ComboBox>
 
         <ComboBox x:Name="ComboListaLuvasMaterial" Width="200" Height="25" Margin="550,-250,0,0" SelectionChanged="ComboListaLuvasMaterial_SelectionChanged"/>
-        <ComboBox x:Name="ComboListaLuvasFamilia" Width="200" Height="25" Margin="550,-180,0,0" SelectionChanged="ComboListaLuvasFamilia_SelectionChanged"/>
-        <TextBox x:Name="InputComprimentoLuva" Width="200" Height="25" Margin="550,-110,0,0" Style="{StaticResource placeHolder}" Tag="Demarcar Comprimento (metros)" TextChanged="InputComprimentoLuva_TextChanged" PreviewTextInput="InputComprimentoLuva_PreviewTextInput" />
+        
+        <TextBox x:Name="InputComprimentoLuva" Width="200" Height="25" Margin="550,-180,0,0" Style="{StaticResource placeHolder}" Tag="Demarcar Comprimento (metros)" TextChanged="InputComprimentoLuva_TextChanged" PreviewTextInput="InputComprimentoLuva_PreviewTextInput" />
 
 
 
@@ -83,13 +83,13 @@
        
         <Button x:Name="LimparTags" Width="90" Height="30" VerticalAlignment="Top" Margin="600,300,0,0" Content="Limpar Tags" Click="LimparTags_Click"/>
        
-        <Button x:Name="AdicionarTagsConexoes" Width="100" Height="30" VerticalAlignment="Top" Margin="-550,300,0,0" Content="Tags Conexoes" Click="AdicionarTagsConexoes_Click"/>
+        <Button x:Name="AdicionarTagsConexoes" Width="100" Height="30" VerticalAlignment="Top" Margin="-550,310,0,0" Content="Tags Conexoes" Click="AdicionarTagsConexoes_Click"/>
 
-        <Button x:Name="AdicionarTagsAcessorios" Width="90" Height="30" VerticalAlignment="Top" Margin="0,110,0,0" Content="Tags Acessorios" Click="AdicionarTagsAcessorios_Click"/>
+        <Button x:Name="AdicionarTagsAcessorios" Width="90" Height="30" VerticalAlignment="Top" Margin="0,120,0,0" Content="Tags Acessorios" Click="AdicionarTagsAcessorios_Click"/>
 
-        <Button x:Name="AdicionarTagsPecas" Width="90" Height="30" VerticalAlignment="Top" Margin="0,260,0,0" Content="Tags Pecas" Click="AdicionarTagsPecas_Click"/>
+        <Button x:Name="AdicionarTagsPecas" Width="90" Height="30" VerticalAlignment="Top" Margin="0,270,0,0" Content="Tags Pecas" Click="AdicionarTagsPecas_Click"/>
 
-        <Button x:Name="AdicionarLuvas" Width="100" Height="30" VerticalAlignment="Top" Margin="550,150,0,0" Content="Adicionar Luvas" Click="AdicionarLuvas_Click" />
+        <Button x:Name="AdicionarLuvas" Width="100" Height="30" VerticalAlignment="Top" Margin="550,120,0,0" Content="Adicionar Luvas" Click="AdicionarLuvas_Click" />
 
     </Grid>
 </Window>
