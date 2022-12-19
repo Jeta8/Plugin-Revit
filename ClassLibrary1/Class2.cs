@@ -122,24 +122,23 @@ namespace SegundaBiblioteca
                                 Transaction t = new Transaction(Doc.Document, "Adicionar Tag");
                                 t.Start();
 
-                                foreach (Element g in tubulacoes)
-                                {
-                                    Parameter Sistemas = g.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-                                    if (Sistemas != null && Sistemas.AsValueString() != null)
-                                    {
-                                        if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
-                                        {
-                                            IndependentTag tag = IndependentTag.Create(
-                                            Doc.Document, TagSelecionada.Id, Doc.ActiveView.Id, refe,
-                                            false, TagOrientation.Horizontal, PosicaoFinal);
 
-                                            if (tag != null)
-                                            {
-                                                TagsDoUnmep.Add(tag.Id);
-                                            }
+                                Parameter Sistemas = item.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+                                if (Sistemas != null && Sistemas.AsValueString() != null)
+                                {
+                                    if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
+                                    {
+                                        IndependentTag tag = IndependentTag.Create(
+                                        Doc.Document, TagSelecionada.Id, Doc.ActiveView.Id, refe,
+                                        false, TagOrientation.Horizontal, PosicaoFinal);
+
+                                        if (tag != null)
+                                        {
+                                            TagsDoUnmep.Add(tag.Id);
                                         }
                                     }
                                 }
+
                                 t.Commit();
 
                             }
@@ -327,23 +326,23 @@ namespace SegundaBiblioteca
                             // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
                             Transaction t = new Transaction(Doc.Document, "Adicionar Tag na Conexão");
                             t.Start();
-                            
-                                Parameter Sistemas = itemconex.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-                                if (Sistemas != null && Sistemas.AsValueString() != null)
-                                {
-                                    if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
-                                    {
-                                        IndependentTag tagConexao = IndependentTag.Create(
-                                        Doc.Document, TagConexSelecionada.Id, Doc.ActiveView.Id, refe,
-                                        true, TagOrientation.Horizontal, PosicaoFinal);
 
-                                        if (tagConexao != null)
-                                        {
-                                            TagsConexoesDoUnmep.Add(tagConexao.Id);
-                                        }
+                            Parameter Sistemas = itemconex.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+                            if (Sistemas != null && Sistemas.AsValueString() != null)
+                            {
+                                if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
+                                {
+                                    IndependentTag tagConexao = IndependentTag.Create(
+                                    Doc.Document, TagConexSelecionada.Id, Doc.ActiveView.Id, refe,
+                                    true, TagOrientation.Horizontal, PosicaoFinal);
+
+                                    if (tagConexao != null)
+                                    {
+                                        TagsConexoesDoUnmep.Add(tagConexao.Id);
                                     }
                                 }
-                            
+                            }
+
                             t.Commit();
 
                         }
@@ -468,28 +467,26 @@ namespace SegundaBiblioteca
                             // Comando que diz qual a vista, qual tag, tubulação de referência e qual posição o Revit usará pra colocar a tag
                             Transaction t = new Transaction(Doc.Document, "Adicionar Tag no Acessório");
                             t.Start();
-                            ICollection<Element> tubulacoes =
-                                   new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
-                            foreach (Element g in tubulacoes)
-                            {
-                                Parameter Sistemas = g.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-                                if (Sistemas != null && Sistemas.AsValueString() != null)
-                                {
-                                    if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
-                                    {
-                                        IndependentTag tagConexao = IndependentTag.Create(
-                                        Doc.Document, TagAcessorioSelecionado.Id, Doc.ActiveView.Id, refe,
-                                        true, TagOrientation.Horizontal, PosicaoFinal);
 
-                                        tagConexao.LeaderEndCondition = LeaderEndCondition.Free;
-                                        tagConexao.LeaderEnd = PosicaoFinal;
-                                        if (tagConexao != null)
-                                        {
-                                            TagsAcessoriosDoUnmep.Add(tagConexao.Id);
-                                        }
+
+                            Parameter Sistemas = itemacess.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+                            if (Sistemas != null && Sistemas.AsValueString() != null)
+                            {
+                                if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
+                                {
+                                    IndependentTag tagConexao = IndependentTag.Create(
+                                    Doc.Document, TagAcessorioSelecionado.Id, Doc.ActiveView.Id, refe,
+                                    true, TagOrientation.Horizontal, PosicaoFinal);
+
+                                    tagConexao.LeaderEndCondition = LeaderEndCondition.Free;
+                                    tagConexao.LeaderEnd = PosicaoFinal;
+                                    if (tagConexao != null)
+                                    {
+                                        TagsAcessoriosDoUnmep.Add(tagConexao.Id);
                                     }
                                 }
                             }
+
 
 
                             t.Commit();
@@ -630,24 +627,6 @@ namespace SegundaBiblioteca
 
                         var refe = new Reference(itempecas);
 
-                        // Determina a posição da Tag (XYZ)
-                        var posicaoTagPecas = itempecas.get_BoundingBox(Doc.ActiveView).Max;
-                        var posicaominimaPecas = itempecas.get_BoundingBox(Doc.ActiveView).Min;
-                        var TagSize = posicaoTagPecas.DistanceTo(posicaominimaPecas);
-                        var DistRequire = TagSize * 2;
-                        var Sobrepos = true;
-                        var Count = 1;
-
-                        // Checagem de posicionamento da tubulação (Horizontal varia em X, Vertical varia em Z)
-
-                        var DifPosX = (posicaoTagPecas.X - posicaominimaPecas.X);
-                        var DifPosY = (posicaoTagPecas.Y - posicaominimaPecas.Y);
-                        var DifPosZ = (posicaoTagPecas.Z - posicaominimaPecas.Z);
-
-
-
-                        XYZ PosicaoFinal = new XYZ(posicaoTagPecas.X - (DifPosX / 2), posicaoTagPecas.Y - (DifPosY / 2), posicaoTagPecas.Z - (DifPosZ / 2));
-
 
                         try
                         {
@@ -667,40 +646,45 @@ namespace SegundaBiblioteca
                                 var Viewtest = activeView3D.GetOrientation().EyePosition;
                                 var posicConec = k.Origin;
 
-                                
-                                            IndependentTag tagPeca = IndependentTag.Create(
+                                Parameter Sistemas = itempecas.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+                                if (Sistemas != null && Sistemas.AsValueString() != null)
+                                {
+                                    if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
+                                    {
+                                        IndependentTag tagPeca = IndependentTag.Create(
                                             Doc.Document, TagPecaSelecionada.Id, Doc.ActiveGraphicalView.Id, refe,
                                             true, TagOrientation.Vertical, posicConec);
 
-                                            tagPeca.LeaderEndCondition = LeaderEndCondition.Free;
-                                            tagPeca.LeaderEnd = posicConec;
+                                        tagPeca.LeaderEndCondition = LeaderEndCondition.Free;
+                                        tagPeca.LeaderEnd = posicConec;
 
 
 
-                                            if (UserControl2.direcoesNomes == UserControl2.Direcoes.Cima)
-                                            {
-                                                tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, (posicConec.Z + UserControl2.TamanhoLinhaTag));
-                                            }
-                                            else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Direita)
-                                            {
-                                                tagPeca.TagHeadPosition = new XYZ(posicConec.X + UserControl2.TamanhoLinhaTag, posicConec.Y + UserControl2.TamanhoLinhaTag, posicConec.Z);
-                                            }
-                                            else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Baixo)
-                                            {
-                                                tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, posicConec.Z - UserControl2.TamanhoLinhaTag);
-                                            }
-                                            else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Esquerda)
-                                            {
-                                                tagPeca.TagHeadPosition = new XYZ(posicConec.X - UserControl2.TamanhoLinhaTag, posicConec.Y - UserControl2.TamanhoLinhaTag, posicConec.Z);
-                                            }
+                                        if (UserControl2.direcoesNomes == UserControl2.Direcoes.Cima)
+                                        {
+                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, (posicConec.Z + UserControl2.TamanhoLinhaTag));
+                                        }
+                                        else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Direita)
+                                        {
+                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X + UserControl2.TamanhoLinhaTag, posicConec.Y + UserControl2.TamanhoLinhaTag, posicConec.Z);
+                                        }
+                                        else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Baixo)
+                                        {
+                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, posicConec.Z - UserControl2.TamanhoLinhaTag);
+                                        }
+                                        else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Esquerda)
+                                        {
+                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X - UserControl2.TamanhoLinhaTag, posicConec.Y - UserControl2.TamanhoLinhaTag, posicConec.Z);
+                                        }
 
-                                            if (tagPeca != null)
-                                            {
-                                                TagsPecasDoUnmep.Add(tagPeca.Id);
-                                            }
-                                        
-                                    
-                                
+                                        if (tagPeca != null)
+                                        {
+                                            TagsPecasDoUnmep.Add(tagPeca.Id);
+                                        }
+
+                                    }
+                                }
+
 
                             }
                             t.Commit();
@@ -795,7 +779,7 @@ namespace SegundaBiblioteca
 
                         if (fcmanager != null)
                         {
-                            if (fcmanager.Name.Equals(UserControl2.FamiliaLuvaSelecionada))
+                            if (fcmanager.FamilyName.Equals(UserControl2.FamiliaLuvaSelecionada))
                             {
                                 LuvaSelecionada = z;
                                 break;
@@ -812,17 +796,6 @@ namespace SegundaBiblioteca
             {
                 foreach (Element tb in tubulações)
                 {
-                    try
-                    {
-                        FamilyInstance VerificarSuperComp = tb as FamilyInstance;
-                        if (VerificarSuperComp != null && VerificarSuperComp.SuperComponent != null)
-                        {
-                            continue;
-                        }
-                    }
-                    catch (Exception)
-                    {
-                    }
 
                     Parameter Comprimento = tb.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
 
@@ -834,37 +807,21 @@ namespace SegundaBiblioteca
                         {
                             if (tb != null)
                             {
-                                try
-                                {
-                                    if (tb.LevelId.IntegerValue == -1)
-                                    {
-                                        continue;
-                                    }
-                                }
-                                catch (Exception e) { }
-
-                                var l = UserControl2.ValorUsuarioLuva;
-
-                                //https://github.com/Zizobiko25/Pipe-Split/blob/master/SplitPipes/Class1.cs
-
-                                var refe = new Reference(tb);
 
                                 Curve c1 = (tb.Location as LocationCurve).Curve;
-                                var tamanhoTotalTubo = UnitUtils.ConvertFromInternalUnits(tb.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH).AsDouble(),
-                                    DisplayUnitType.DUT_MILLIMETERS);
-                                if (tamanhoTotalTubo < 1)
-                                    return;
 
-                                var startPoint = c1.GetEndPoint(0);
-                                var endPoint = c1.GetEndPoint(1);
-                                XYZ splitpoint = (endPoint - startPoint) * (l / tamanhoTotalTubo);
+                                // Determina a posição da Tag (XYZ)
+                                var posicaomaximaPecas = tb.get_BoundingBox(Doc.ActiveView).Max;
+                                var posicaominimaPecas = tb.get_BoundingBox(Doc.ActiveView).Min;
 
-                                var novosplit = startPoint + splitpoint;
-                                Pipe SelectPip = tb as Pipe;
+                                // Checagem de posicionamento da tubulação (Horizontal varia em X, Vertical varia em Z)
 
-                                Connector startConn = FindConnectedTo(SelectPip, startPoint);
-                                Connector endConn = FindConnectedTo(SelectPip, endPoint);
+                                var DifPosX = (posicaomaximaPecas.X - posicaominimaPecas.X);
+                                var DifPosY = (posicaomaximaPecas.Y - posicaominimaPecas.Y);
+                                var DifPosZ = (posicaomaximaPecas.Z - posicaominimaPecas.Z);
 
+
+                                XYZ PosicaoFinal = new XYZ(posicaominimaPecas.X, posicaomaximaPecas.Y - (DifPosY / 2), posicaomaximaPecas.Z - (DifPosZ / 2));
 
 
                                 try
@@ -875,28 +832,24 @@ namespace SegundaBiblioteca
                                     var cf = GetConnectors(tb);
                                     foreach (Connector c in cf)
                                     {
-                                        ICollection<Element> tubulacoes =
-                                     new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
-                                        foreach (Element g in tubulacoes)
-                                        {
-                                            Parameter Sistemas = g.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-                                            if (Sistemas != null && Sistemas.AsValueString() != null)
-                                            {
-                                                if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
-                                                {
-                                                    Pipe pipesLuv = Pipe.Create(Doc.Document, LuvaSelecionada.Id, Doc.ActiveGraphicalView.LevelId, startConn, novosplit);
 
-                                                    if (pipesLuv != null)
-                                                    {
-                                                        LuvasDoUnmep.Add(pipesLuv.Id);
-                                                    }
+                                        var posicOrigin = tb.get_BoundingBox(Doc.ActiveGraphicalView).Max;
+                                        Parameter Sistemas = tb.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+                                        if (Sistemas != null && Sistemas.AsValueString() != null)
+                                        {
+                                            if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
+                                            {
+                                                ElementId luvaColocada = PlumbingUtils.BreakCurve(Doc.Document, tb.Id, posicOrigin);
+
+                                                //PlumbingUtils luvaTubos = PlumbingUtils.ConnectPipePlaceholdersAtTee(Doc.Document,);
+                                                if (luvaColocada != null)
+                                                {
+                                                    LuvasDoUnmep.Add(luvaColocada);
                                                 }
                                             }
                                         }
 
                                     }
-
-
                                     j.Commit();
                                 }
                                 catch (Exception er)

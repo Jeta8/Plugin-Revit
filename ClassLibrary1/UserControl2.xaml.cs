@@ -41,7 +41,7 @@ namespace ClassLibrary1
         public static string NomeTagPecaSelecionada = "";
         public static string DirecaoTagSelecionada = "";
 
-        public static string MaterialLuvaSelecionado = "";
+        
 
 
         public static string TipoTagSelecionada = "";
@@ -230,6 +230,11 @@ namespace ClassLibrary1
 
         public void Selecionar_Sistema_Click(object sender, RoutedEventArgs e)
         {
+            if (ComboListaSistema.SelectedIndex == -1)
+            {
+                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
+                return;
+            }
             ICollection<Element> tubulacoes =
                new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
             IList<ElementId> SistemaSelecionado = new List<ElementId>();
@@ -293,6 +298,11 @@ namespace ClassLibrary1
         // Tags nas tubulações
         private void AdicionarTags_Click(object sender, RoutedEventArgs e)
         {
+            if (ComboListaSistema.SelectedIndex == -1)
+            {
+                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
+                return;
+            }
             ComandoTags.GetInstance.cTags.Raise();
         }
 
@@ -374,6 +384,11 @@ namespace ClassLibrary1
         // Tags em Conexões
         private void AdicionarTagsConexoes_Click(object sender, RoutedEventArgs e)
         {
+            if (ComboListaSistema.SelectedIndex == -1)
+            {
+                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
+                return;
+            }
             TagsConexoes.GetInstance.TagsConex.Raise();
         }
 
@@ -452,6 +467,11 @@ namespace ClassLibrary1
         // Acessórios
         private void AdicionarTagsAcessorios_Click(object sender, RoutedEventArgs e)
         {
+            if (ComboListaSistema.SelectedIndex == -1)
+            {
+                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);              
+                return;
+            }
             TagsAcessorios.GetInstance.TagsAcess.Raise();
         }
 
@@ -588,6 +608,12 @@ namespace ClassLibrary1
 
         private void AdicionarTagsPecas_Click(object sender, RoutedEventArgs e)
         {
+            if (ComboListaSistema.SelectedIndex == -1)
+            {
+                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
+                return;
+            }
+
             TagsPecasHidro.GetInstance.TagsPecas.Raise();
         }
 
@@ -610,7 +636,7 @@ namespace ClassLibrary1
 
         private void ComboListaLuvasMaterial_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MaterialLuvaSelecionado = ComboListaLuvasMaterial.SelectedItem.ToString();
+            FamiliaLuvaSelecionada = ComboListaLuvasMaterial.SelectedItem.ToString();
 
             ICollection<Element> luvas =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
@@ -650,7 +676,7 @@ namespace ClassLibrary1
             }
             else
             {
-                ValorUsuarioLuva = 0;
+                ValorUsuarioLuva = 6;
             }
         }
 
@@ -663,9 +689,15 @@ namespace ClassLibrary1
 
         private void AdicionarLuvas_Click(object sender, RoutedEventArgs e)
         {
+            if (ComboListaSistema.SelectedIndex == -1)
+            {
+                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
+                return;
+            }
             AdicLuvas.GetInstance.AdicionarLuvas.Raise();
         }
 
+        
         private void ComboListaSistema_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SistemaAlvo = ComboListaSistema.SelectedItem.ToString();
