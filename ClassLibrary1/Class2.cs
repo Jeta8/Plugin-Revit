@@ -838,7 +838,7 @@ namespace SegundaBiblioteca
                                 var DifPosZ = (posicaomaximaPecas.Z - posicaominimaPecas.Z);
 
 
-                                XYZ PosicaoFinal = new XYZ(posicaomaximaPecas.X - (DifPosY / 2), posicaomaximaPecas.Y - (DifPosY / 2), posicaomaximaPecas.Z - (DifPosZ / 2));
+                                XYZ PosicaoFinal = new XYZ(posicaomaximaPecas.X , posicaomaximaPecas.Y - (DifPosY / 2), posicaomaximaPecas.Z - (DifPosZ / 2));
 
 
                                 try

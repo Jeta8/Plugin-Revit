@@ -15,6 +15,7 @@ namespace ClassLibrary1
 {
     [Transaction(TransactionMode.Manual)]
     [Regeneration(RegenerationOption.Manual)]
+
     public class Class1 : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
@@ -22,6 +23,7 @@ namespace ClassLibrary1
             // Evento para abrir a janela do plugin
             UIApplication uiapp = commandData.Application;
             UserControl2 janela = new UserControl2(uiapp.ActiveUIDocument);
+            
             janela.Show();
 
             // Evento para adicionar as tags nas tubulações

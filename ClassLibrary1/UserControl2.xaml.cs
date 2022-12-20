@@ -31,18 +31,21 @@ namespace ClassLibrary1
     /// <summary>
     /// Interação lógica para UserControl2.xaml
     /// </summary>
+    /// 
+
+
     public partial class UserControl2 : Window
     {
         UIDocument Doc;
-
+        
         public static string NomeTagSelecionada = "";
         public static string NomeTagConexaoSelecionada = "";
         public static string NomeTagAcessorioSelecionado = "";
         public static string NomeTagPecaSelecionada = "";
         public static string DirecaoTagSelecionada = "";
 
-        
 
+        
 
         public static string TipoTagSelecionada = "";
         public static string TipoTagConexaoSelecionada = "";
@@ -57,23 +60,26 @@ namespace ClassLibrary1
         public static string SistemaAlvo = ""; 
 
 
-
+        //Constructor
         public UserControl2()
-        {
+        {           
         }
-
+        
+    
         public UserControl2(UIDocument doc)
         {
             InitializeComponent();
-            Doc = doc;
-            VerificarSistemas();
-
-            ProjectLocationSet pa = new ProjectLocationSet();
-
+            Doc = doc;           
+            VerificarSistemas();      
         }
 
         public void VerificarSistemas()
         {
+            //View3D active3dView = Doc.Document.ActiveView as View3D;
+            //active3dView.SaveOrientationAndLock();
+
+
+
             // Coleções que armazenam as tubulações e tags do projeto do usuário
 
             //Tubulações
