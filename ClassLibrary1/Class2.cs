@@ -758,7 +758,7 @@ namespace SegundaBiblioteca
         {
             UIDocument Doc = app.ActiveUIDocument;
 
-            ICollection<Element> tubulações =
+            ICollection<Element> tubulacoes =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
 
             ICollection<Element> luvas =
@@ -794,7 +794,7 @@ namespace SegundaBiblioteca
             }
             if (LuvaSelecionada != null)
             {
-                foreach (Element tb in tubulações)
+                foreach (Element tb in tubulacoes)
                 {
 
                     Parameter Comprimento = tb.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
@@ -808,7 +808,7 @@ namespace SegundaBiblioteca
                             if (tb != null)
                             {
 
-                                Curve c1 = (tb.Location as LocationCurve).Curve;
+                                // Curve c1 = (tb.Location as LocationCurve).Curve;
 
                                 // Determina a posição da Tag (XYZ)
                                 var posicaomaximaPecas = tb.get_BoundingBox(Doc.ActiveView).Max;
@@ -821,7 +821,7 @@ namespace SegundaBiblioteca
                                 var DifPosZ = (posicaomaximaPecas.Z - posicaominimaPecas.Z);
 
 
-                                XYZ PosicaoFinal = new XYZ(posicaominimaPecas.X, posicaomaximaPecas.Y - (DifPosY / 2), posicaomaximaPecas.Z - (DifPosZ / 2));
+                                XYZ PosicaoFinal = new XYZ(posicaominimaPecas.X - (DifPosY / 2), posicaomaximaPecas.Y - (DifPosY / 2), posicaomaximaPecas.Z - (DifPosZ / 2));
 
 
                                 try
@@ -829,17 +829,17 @@ namespace SegundaBiblioteca
                                     Transaction j = new Transaction(Doc.Document, "Adicionar Luva na tubulação");
                                     j.Start();
 
-                                    var cf = GetConnectors(tb);
-                                    foreach (Connector c in cf)
-                                    {
+                                  //  var cf = GetConnectors(tb);
 
+                                    foreach(Element curves in tubulacoes)
+                                    {
                                         var posicOrigin = tb.get_BoundingBox(Doc.ActiveGraphicalView).Max;
                                         Parameter Sistemas = tb.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
                                         if (Sistemas != null && Sistemas.AsValueString() != null)
                                         {
                                             if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
                                             {
-                                                ElementId luvaColocada = PlumbingUtils.BreakCurve(Doc.Document, tb.Id, posicOrigin);
+                                                ElementId luvaColocada = PlumbingUtils.BreakCurve(Doc.Document, curves.Id, PosicaoFinal);
 
                                                 //PlumbingUtils luvaTubos = PlumbingUtils.ConnectPipePlaceholdersAtTee(Doc.Document,);
                                                 if (luvaColocada != null)
@@ -848,8 +848,9 @@ namespace SegundaBiblioteca
                                                 }
                                             }
                                         }
-
                                     }
+                                    
+
                                     j.Commit();
                                 }
                                 catch (Exception er)
