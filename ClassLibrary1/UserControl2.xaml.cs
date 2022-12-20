@@ -161,7 +161,6 @@ namespace ClassLibrary1
                         {
                             continue;
                         }
-
                         else
                         {
                             ComboListaTagsConexoes.Items.Add(k.AsString());
@@ -180,8 +179,15 @@ namespace ClassLibrary1
                 {
                     if (!TagsAcessoriosAdicionados.Contains(d.AsString()))
                     {
+                        if (ComboListaTagsAcessorios.Items.Contains(d.AsString()))
+                        {
+                            continue;
+                        }
+                        else 
+                        {
                         ComboListaTagsAcessorios.Items.Add(d.AsString());
                         TagsAcessoriosAdicionados.Add(d.AsString());
+                        }
                     }
                 }
             }
@@ -232,7 +238,7 @@ namespace ClassLibrary1
         {
             if (ComboListaSistema.SelectedIndex == -1)
             {
-                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
+                System.Windows.Forms.MessageBox.Show("Selecione o sistema desejado!", "Erro", MessageBoxButtons.OK);
                 return;
             }
             ICollection<Element> tubulacoes =
@@ -300,7 +306,7 @@ namespace ClassLibrary1
         {
             if (ComboListaSistema.SelectedIndex == -1)
             {
-                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
+                System.Windows.Forms.MessageBox.Show("Selecione o sistema desejado!", "Erro",  MessageBoxButtons.OK);
                 return;
             }
             ComandoTags.GetInstance.cTags.Raise();
@@ -308,9 +314,7 @@ namespace ClassLibrary1
 
         private void ComboListaTags_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Aqui adiciona ao combobox os tipos de tags no projeto do usuário
-            if (ComboListaTags.SelectedIndex == -1)
-                return;
+            // Aqui adiciona ao combobox os tipos de tags no projeto do usuário        
 
             NomeTagSelecionada = ComboListaTags.SelectedItem.ToString();
 
@@ -386,7 +390,7 @@ namespace ClassLibrary1
         {
             if (ComboListaSistema.SelectedIndex == -1)
             {
-                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
+                System.Windows.Forms.MessageBox.Show("Selecione o sistema desejado!", "Erro",  MessageBoxButtons.OK);
                 return;
             }
             TagsConexoes.GetInstance.TagsConex.Raise();
@@ -395,9 +399,7 @@ namespace ClassLibrary1
         private void ComboListaTagsConexoes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Aqui adiciona ao combobox os tipos de tags no projeto do usuário
-            if (ComboListaTagsConexoes.SelectedIndex == -1)
-                return;
-
+           
             NomeTagConexaoSelecionada = ComboListaTagsConexoes.SelectedItem.ToString();
 
 
@@ -469,7 +471,7 @@ namespace ClassLibrary1
         {
             if (ComboListaSistema.SelectedIndex == -1)
             {
-                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);              
+                System.Windows.Forms.MessageBox.Show("Selecione o sistema desejado!", "Erro", MessageBoxButtons.OK);
                 return;
             }
             TagsAcessorios.GetInstance.TagsAcess.Raise();
@@ -519,6 +521,7 @@ namespace ClassLibrary1
                         {
                             if (ComboListaInstanciasAcessorios.Items.Contains(instanciaacessorio.Name))
                                 continue;
+
                             if (!ComboListaInstanciasAcessorios.Items.Contains(instanciaacessorio.Name))
                             {
                                 ComboListaInstanciasAcessorios.Items.Add(instanciaacessorio.Name);
@@ -610,7 +613,7 @@ namespace ClassLibrary1
         {
             if (ComboListaSistema.SelectedIndex == -1)
             {
-                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
+                System.Windows.Forms.MessageBox.Show("Selecione o sistema desejado!", "Erro", MessageBoxButtons.OK);
                 return;
             }
 
@@ -691,7 +694,7 @@ namespace ClassLibrary1
         {
             if (ComboListaSistema.SelectedIndex == -1)
             {
-                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
+                System.Windows.Forms.MessageBox.Show("Selecione o sistema desejado!", "Erro", MessageBoxButtons.OK);
                 return;
             }
             AdicLuvas.GetInstance.AdicionarLuvas.Raise();

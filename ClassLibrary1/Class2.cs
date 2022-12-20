@@ -74,11 +74,15 @@ namespace SegundaBiblioteca
 
                         if (fmanager != null)
                         {
-                            if (fmanager.Name.Equals(UserControl2.TipoTagSelecionada))
+                            if(fmanager.FamilyName.Equals(UserControl2.NomeTagSelecionada))
                             {
-                                TagSelecionada = g;
-                                break;
+                                if (fmanager.Name.Equals(UserControl2.TipoTagSelecionada))
+                                {
+                                    TagSelecionada = g;
+                                    break;
+                                }
                             }
+                            
                         }
                     }
                 }
@@ -277,11 +281,15 @@ namespace SegundaBiblioteca
 
                         if (fcmanager != null)
                         {
-                            if (fcmanager.Name.Equals(UserControl2.TipoTagConexaoSelecionada))
+                            if (fcmanager.FamilyName.Equals(UserControl2.NomeTagConexaoSelecionada))
                             {
-                                TagConexSelecionada = g;
-                                break;
+                                if (fcmanager.Name.Equals(UserControl2.TipoTagConexaoSelecionada))
+                                {
+                                    TagConexSelecionada = g;
+                                    break;
+                                }
                             }
+                            
                         }
                     }
                 }
@@ -409,11 +417,15 @@ namespace SegundaBiblioteca
 
                         if (fcmanager != null)
                         {
-                            if (fcmanager.Name.Equals(UserControl2.TipoTagAcessorioSelecionado))
+                            if (fcmanager.FamilyName.Equals(UserControl2.NomeTagAcessorioSelecionado))
                             {
-                                TagAcessorioSelecionado = d;
-                                break;
+                                if (fcmanager.Name.Equals(UserControl2.TipoTagAcessorioSelecionado))
+                                {
+                                    TagAcessorioSelecionado = fcmanager;
+                                    break;
+                                }
                             }
+                           
                         }
                     }
                 }
@@ -474,15 +486,15 @@ namespace SegundaBiblioteca
                             {
                                 if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
                                 {
-                                    IndependentTag tagConexao = IndependentTag.Create(
+                                    IndependentTag tagAcessorio = IndependentTag.Create(
                                     Doc.Document, TagAcessorioSelecionado.Id, Doc.ActiveView.Id, refe,
                                     true, TagOrientation.Horizontal, PosicaoFinal);
 
-                                    tagConexao.LeaderEndCondition = LeaderEndCondition.Free;
-                                    tagConexao.LeaderEnd = PosicaoFinal;
-                                    if (tagConexao != null)
+                                    tagAcessorio.LeaderEndCondition = LeaderEndCondition.Free;
+                                    tagAcessorio.LeaderEnd = PosicaoFinal;
+                                    if (tagAcessorio != null)
                                     {
-                                        TagsAcessoriosDoUnmep.Add(tagConexao.Id);
+                                        TagsAcessoriosDoUnmep.Add(tagAcessorio.Id);
                                     }
                                 }
                             }
@@ -586,11 +598,15 @@ namespace SegundaBiblioteca
 
                         if (fcmanager != null)
                         {
-                            if (fcmanager.Name.Equals(UserControl2.TipoTagPecaSelecionado))
+                            if (fcmanager.FamilyName.Equals(UserControl2.NomeTagPecaSelecionada))
                             {
-                                TagPecaSelecionada = d;
-                                break;
+                                if (fcmanager.Name.Equals(UserControl2.TipoTagPecaSelecionado))
+                                {
+                                    TagPecaSelecionada = d;
+                                    break;
+                                }
                             }
+                           
                         }
                     }
                 }
@@ -779,6 +795,7 @@ namespace SegundaBiblioteca
 
                         if (fcmanager != null)
                         {
+                            
                             if (fcmanager.FamilyName.Equals(UserControl2.FamiliaLuvaSelecionada))
                             {
                                 LuvaSelecionada = z;
@@ -821,7 +838,7 @@ namespace SegundaBiblioteca
                                 var DifPosZ = (posicaomaximaPecas.Z - posicaominimaPecas.Z);
 
 
-                                XYZ PosicaoFinal = new XYZ(posicaominimaPecas.X - (DifPosY / 2), posicaomaximaPecas.Y - (DifPosY / 2), posicaomaximaPecas.Z - (DifPosZ / 2));
+                                XYZ PosicaoFinal = new XYZ(posicaomaximaPecas.X - (DifPosY / 2), posicaomaximaPecas.Y - (DifPosY / 2), posicaomaximaPecas.Z - (DifPosZ / 2));
 
 
                                 try
@@ -840,7 +857,7 @@ namespace SegundaBiblioteca
                                             if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
                                             {
                                                 ElementId luvaColocada = PlumbingUtils.BreakCurve(Doc.Document, curves.Id, PosicaoFinal);
-
+                                                
                                                 //PlumbingUtils luvaTubos = PlumbingUtils.ConnectPipePlaceholdersAtTee(Doc.Document,);
                                                 if (luvaColocada != null)
                                                 {
