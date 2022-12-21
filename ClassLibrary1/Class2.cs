@@ -849,11 +849,13 @@ namespace SegundaBiblioteca
 
                                             try
                                             {
-                                                for (double VU = UserControl2.ValorUsuarioLuva; VU < ValorComprimento; VU *= 2)
+                                                for (double userValue = UserControl2.ValorUsuarioLuva; userValue < ValorComprimento; userValue *= 2)
                                                 {
 
-                                                    XYZ Split = startPoint.Add(splitpoint.Multiply(VU / 3.281));
+                                                    XYZ Split = startPoint.Add(splitpoint.Multiply(userValue / 3.281));
                                                     ElementId luvaColocada = PlumbingUtils.BreakCurve(Doc.Document, tb.Id, Split);
+                                                    
+                                                      Doc.Document.Create.NewUnionFitting();
                                                     if (luvaColocada != null)
                                                     {
                                                         LuvasDoUnmep.Add(luvaColocada);
