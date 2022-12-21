@@ -74,7 +74,7 @@ namespace SegundaBiblioteca
 
                         if (fmanager != null)
                         {
-                            if(fmanager.FamilyName.Equals(UserControl2.NomeTagSelecionada))
+                            if (fmanager.FamilyName.Equals(UserControl2.NomeTagSelecionada))
                             {
                                 if (fmanager.Name.Equals(UserControl2.TipoTagSelecionada))
                                 {
@@ -82,7 +82,7 @@ namespace SegundaBiblioteca
                                     break;
                                 }
                             }
-                            
+
                         }
                     }
                 }
@@ -289,7 +289,7 @@ namespace SegundaBiblioteca
                                     break;
                                 }
                             }
-                            
+
                         }
                     }
                 }
@@ -425,7 +425,7 @@ namespace SegundaBiblioteca
                                     break;
                                 }
                             }
-                           
+
                         }
                     }
                 }
@@ -606,7 +606,7 @@ namespace SegundaBiblioteca
                                     break;
                                 }
                             }
-                           
+
                         }
                     }
                 }
@@ -795,7 +795,7 @@ namespace SegundaBiblioteca
 
                         if (fcmanager != null)
                         {
-                            
+
                             if (fcmanager.FamilyName.Equals(UserControl2.FamiliaLuvaSelecionada))
                             {
                                 LuvaSelecionada = z;
@@ -811,6 +811,9 @@ namespace SegundaBiblioteca
             }
             if (LuvaSelecionada != null)
             {
+                Transaction j = new Transaction(Doc.Document, "Adicionar Luva na tubulação");
+                j.Start();
+
                 foreach (Element tb in tubulacoes)
                 {
 
@@ -822,62 +825,61 @@ namespace SegundaBiblioteca
 
                         if (ValorComprimento >= UserControl2.ValorUsuarioLuva)
                         {
-                            if (tb != null)
-                            {
-
-                                // Curve c1 = (tb.Location as LocationCurve).Curve;
-
-                                // Determina a posição da Tag (XYZ)
-                                var posicaomaximaPecas = tb.get_BoundingBox(Doc.ActiveView).Max;
-                                var posicaominimaPecas = tb.get_BoundingBox(Doc.ActiveView).Min;
-
-                                // Checagem de posicionamento da tubulação (Horizontal varia em X, Vertical varia em Z)
-
-                                var DifPosX = (posicaomaximaPecas.X - posicaominimaPecas.X);
-                                var DifPosY = (posicaomaximaPecas.Y - posicaominimaPecas.Y);
-                                var DifPosZ = (posicaomaximaPecas.Z - posicaominimaPecas.Z);
-
-
-                                XYZ PosicaoFinal = new XYZ(posicaomaximaPecas.X , posicaomaximaPecas.Y - (DifPosY / 2), posicaomaximaPecas.Z - (DifPosZ / 2));
+                           
+                                LocationCurve c1 = (tb.Location as LocationCurve);
 
 
                                 try
                                 {
-                                    Transaction j = new Transaction(Doc.Document, "Adicionar Luva na tubulação");
-                                    j.Start();
+                                 
 
-                                  //  var cf = GetConnectors(tb);
+                                    //  var cf = GetConnectors(tb);
 
-                                    foreach(Element curves in tubulacoes)
+                                    Parameter Sistemas = tb.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+                                    if (Sistemas != null && Sistemas.AsValueString() != null)
                                     {
-                                        var posicOrigin = tb.get_BoundingBox(Doc.ActiveGraphicalView).Max;
-                                        Parameter Sistemas = tb.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-                                        if (Sistemas != null && Sistemas.AsValueString() != null)
+                                        if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
                                         {
-                                            if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
+
+                                            var tubo = c1.Curve;
+                                            var startPoint = tubo.GetEndPoint(0);
+                                            var endPoint = tubo.GetEndPoint(1);
+
+                                            XYZ splitpoint = endPoint.Subtract(startPoint).Normalize();
+
+                                            try
                                             {
-                                                ElementId luvaColocada = PlumbingUtils.BreakCurve(Doc.Document, curves.Id, PosicaoFinal);
-                                                
-                                                //PlumbingUtils luvaTubos = PlumbingUtils.ConnectPipePlaceholdersAtTee(Doc.Document,);
-                                                if (luvaColocada != null)
+                                                for (double VU = UserControl2.ValorUsuarioLuva; VU < ValorComprimento; VU *= 2)
                                                 {
-                                                    LuvasDoUnmep.Add(luvaColocada);
+
+                                                    XYZ Split = startPoint.Add(splitpoint.Multiply(VU / 3.281));
+                                                    ElementId luvaColocada = PlumbingUtils.BreakCurve(Doc.Document, tb.Id, Split);
+                                                    if (luvaColocada != null)
+                                                    {
+                                                        LuvasDoUnmep.Add(luvaColocada);
+                                                    }
                                                 }
                                             }
+                                            catch (Exception er) { continue; }
+
+                                            //PlumbingUtils luvaTubos = PlumbingUtils.ConnectPipePlaceholdersAtTee(Doc.Document,);
+
                                         }
                                     }
-                                    
 
-                                    j.Commit();
+
+
+                                   
                                 }
                                 catch (Exception er)
                                 {
                                     continue;
                                 }
-                            }
+                            
                         }
                     }
                 }
+                j.Commit();
             }
         }
 

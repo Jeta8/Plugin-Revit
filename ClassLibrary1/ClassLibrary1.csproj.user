@@ -4,7 +4,7 @@
     <ProjectView>ProjectFiles</ProjectView>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartWorkingDirectory>C:\Users\Jederson\Documents\GitHub\Plugin-Revit\ClassLibrary1\bin\Debug\</StartWorkingDirectory>
+    <StartWorkingDirectory>C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\bin\Debug\</StartWorkingDirectory>
     <StartAction>Program</StartAction>
     <StartProgram>C:\Program Files\Autodesk\Revit 2020\Revit.exe</StartProgram>
   </PropertyGroup>
