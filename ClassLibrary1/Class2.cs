@@ -744,32 +744,79 @@ namespace SegundaBiblioteca
             }
         }
 
-        public static ConnectorSet GetConnectors(Element e)
-        {
-            ConnectorSet connectors = null;
 
-            if (e is FamilyInstance)
+        public static List<Connector> GetClosestConnector(Element e1, Element e2)
+        {
+            ConnectorSet connectors1 = null;
+            ConnectorSet connectors2 = null;
+
+
+        List<Connector> Conexoes = new List<Connector> { };
+
+            if (e1 is FamilyInstance)
             {
-                MEPModel m = ((FamilyInstance)e).MEPModel;
+                MEPModel m = ((FamilyInstance)e1).MEPModel;
 
                 if (null != m
                   && null != m.ConnectorManager)
                 {
-                    connectors = m.ConnectorManager.Connectors;
-
+                    connectors1 = m.ConnectorManager.Connectors;
                 }
             }
             else
             {
-                if (e is MEPCurve)
+                if (e1 is MEPCurve)
                 {
-                    connectors = ((MEPCurve)e)
+                    connectors1 = ((MEPCurve)e1)
                       .ConnectorManager.Connectors;
                 }
             }
 
-            return connectors;
+            if (e2 is FamilyInstance)
+            {
+                MEPModel m = ((FamilyInstance)e2).MEPModel;
+
+                if (null != m
+                  && null != m.ConnectorManager)
+                {
+                    connectors2 = m.ConnectorManager.Connectors;
+                }
+            }
+            else
+            {
+                if (e2 is MEPCurve)
+                {
+                    connectors2 = ((MEPCurve)e2)
+                      .ConnectorManager.Connectors;
+                }
+            }
+
+            Connector pFinal1 = null;
+            Connector pFinal2 = null;
+
+            foreach (Connector cn1 in connectors1)
+            {
+                XYZ p1 = cn1.Origin;
+
+                foreach (Connector cn2 in connectors2)
+                {
+                    if (p1.IsAlmostEqualTo(cn2.Origin))
+                    {
+                        pFinal1 = cn1;
+                        pFinal2 = cn2;
+                    }
+                }
+            }
+
+            Conexoes.Add(pFinal2);
+            Conexoes.Add(pFinal1);
+
+            return Conexoes;
         }
+
+
+
+‌
         public void Execute(UIApplication app)
         {
             UIDocument Doc = app.ActiveUIDocument;
@@ -854,8 +901,9 @@ namespace SegundaBiblioteca
 
                                                     XYZ Split = startPoint.Add(splitpoint.Multiply(userValue / 3.281));
                                                     ElementId luvaColocada = PlumbingUtils.BreakCurve(Doc.Document, tb.Id, Split);
+                                                    var cLv = GetClosestConnector(tb, tb);
+                                                    Doc.Document.Create.NewUnionFitting();
                                                     
-                                                      Doc.Document.Create.NewUnionFitting();
                                                     if (luvaColocada != null)
                                                     {
                                                         LuvasDoUnmep.Add(luvaColocada);
