@@ -1,0 +1,10 @@
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UnMEP-Tags.csproj.AssemblyReference.cache
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\JanelaPrincipal.g.cs
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UnMEP-Tags_MarkupCompile.cache
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\JanelaPrincipal.baml
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UnMEP-Tags.g.resources
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UnMEP-Tags.csproj.CoreCompileInputs.cache
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\bin\Debug\UnMEP-Tags.dll
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\bin\Debug\UnMEP-Tags.pdb
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UnMEP-Tags.dll
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UnMEP-Tags.pdb
