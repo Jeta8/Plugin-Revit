@@ -1,20 +1,20 @@
-﻿UnMEP-Tags
+﻿ClassLibrary1
 
 
 library
 C#
 .cs
-C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\
-Application
+C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\
+ClassLibrary1
 none
 false
 DEBUG;TRACE
 
-1-835626351
+1-534697224
 
-5-1216825112
+61190562098
 17-975684216
-JanelaPrincipal.xaml;
+UserControl2.xaml;
 
-False
+True
 

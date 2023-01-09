@@ -20,3 +20,25 @@ C:\Users\pc01\OneDrive\Documentos\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\Cl
 C:\Users\pc01\OneDrive\Documentos\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.csproj.CoreCompileInputs.cache
 C:\Users\pc01\OneDrive\Documentos\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.dll
 C:\Users\pc01\OneDrive\Documentos\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.pdb
+C:\Users\Jederson\Documents\GitHub\Plugin-Revit\ClassLibrary1\bin\Debug\ClassLibrary1.dll
+C:\Users\Jederson\Documents\GitHub\Plugin-Revit\ClassLibrary1\bin\Debug\ClassLibrary1.pdb
+C:\Users\Jederson\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.csproj.AssemblyReference.cache
+C:\Users\Jederson\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UserControl2.g.cs
+C:\Users\Jederson\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1_MarkupCompile.cache
+C:\Users\Jederson\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1_MarkupCompile.lref
+C:\Users\Jederson\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UserControl2.baml
+C:\Users\Jederson\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.g.resources
+C:\Users\Jederson\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.csproj.CoreCompileInputs.cache
+C:\Users\Jederson\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.dll
+C:\Users\Jederson\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.pdb
+C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\bin\Debug\ClassLibrary1.dll
+C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\bin\Debug\ClassLibrary1.pdb
+C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.csproj.AssemblyReference.cache
+C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UserControl2.g.cs
+C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1_MarkupCompile.cache
+C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1_MarkupCompile.lref
+C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UserControl2.baml
+C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.g.resources
+C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.csproj.CoreCompileInputs.cache
+C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.dll
+C:\Users\Notebook Union\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\ClassLibrary1.pdb
