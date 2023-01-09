@@ -244,7 +244,7 @@ namespace Janelas
                 }
                 catch (Exception)
                 {
-                    ValorUsuarioTubo = 6;
+                    ValorUsuarioTubo = 0;
                     InputComprimento.Text = "";
                 }
             }

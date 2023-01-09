@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using Janelas;
 using System.Linq;
 using System.Windows.Controls;
+using System.Windows.Forms;
 
 namespace ComandosRevit
 {
@@ -60,10 +61,13 @@ namespace ComandosRevit
 
                         if (fmanager != null)
                         {
-                            if (fmanager.Name.Equals(JanelaPrincipal.TipoTagSelecionada))
+                            if (fmanager.FamilyName.Equals(JanelaPrincipal.NomeTagSelecionada))
                             {
-                                TagSelecionada = g;
-                                break;
+                                if (fmanager.Name.Equals(JanelaPrincipal.TipoTagSelecionada))
+                                {
+                                    TagSelecionada = g;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -197,11 +201,13 @@ namespace ComandosRevit
 
                         if (fcmanager != null)
                         {
-                            if (fcmanager.Name.Equals(JanelaPrincipal.TipoTagConexaoSelecionada))
-                            {
-                                TagConexSelecionada = g;
-                                break;
-                            }
+                          
+                                if (fcmanager.Name.Equals(JanelaPrincipal.TipoTagConexaoSelecionada))
+                                {
+                                    TagConexSelecionada = g;
+                                    break;
+                                }
+                            
                         }
                     }
                 }
@@ -329,11 +335,15 @@ namespace ComandosRevit
 
                         if (fcmanager != null)
                         {
-                            if (fcmanager.Name.Equals(JanelaPrincipal.TipoTagAcessorioSelecionado))
+                            if (fcmanager.FamilyName.Equals(JanelaPrincipal.NomeTagAcessorioSelecionado))
                             {
-                                TagAcessorioSelecionado = d;
-                                break;
+                                if (fcmanager.Name.Equals(JanelaPrincipal.TipoTagAcessorioSelecionado))
+                                {
+                                    TagAcessorioSelecionado = fcmanager;
+                                    break;
+                                }
                             }
+
                         }
                     }
                 }
@@ -506,10 +516,13 @@ namespace ComandosRevit
 
                         if (fcmanager != null)
                         {
-                            if (fcmanager.Name.Equals(JanelaPrincipal.TipoTagPecaSelecionado))
+                            if (fcmanager.FamilyName.Equals(JanelaPrincipal.NomeTagPecaSelecionada))
                             {
-                                TagPecaSelecionada = d;
-                                break;
+                                if (fcmanager.Name.Equals(JanelaPrincipal.TipoTagPecaSelecionado))
+                                {
+                                    TagPecaSelecionada = d;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -753,39 +766,11 @@ namespace ComandosRevit
             ICollection<Element> tubulações =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
 
-            ICollection<Element> luvas =
-                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
 
             FamilySymbol LuvaSelecionada = null;
 
             // Verifica se a luva selecionada existe no projeto
-            foreach (Element z in luvas)
-            {
-                try
-                {
-                    dynamic elemento = z;
-                    dynamic isFamilyInstance = elemento.Family;
 
-                    if (isFamilyInstance != null)
-                    {
-                        FamilySymbol fcmanager = z as FamilySymbol;
-
-                        if (fcmanager != null)
-                        {
-                            if (fcmanager.FamilyName.Equals(JanelaPrincipal.FamiliaLuvaSelecionada))
-                            {
-                                // Luva encontrada, guarda o simbolo da familia
-                                LuvaSelecionada = (FamilySymbol)z;
-                                break;
-                            }
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    continue;
-                }
-            }
 
             // Se o simbolo for válido, inicia o processo de colocar as luvas nas tubulações
             if (LuvaSelecionada != null)
@@ -859,26 +844,23 @@ namespace ComandosRevit
 
                                                 Element cn1 = null;
 
-                                                for (double comp = 1; comp <= ValorComprimento; comp++)
+                                                for (double comp = JanelaPrincipal.ValorUsuarioLuva; comp < ValorComprimento; comp += JanelaPrincipal.ValorUsuarioLuva)
                                                 {
-                                                    if (comp < ValorComprimento)
+                                                    XYZ quebra = ponto1.Add(pInicial.Multiply(comp * 3.281));
+
+                                                    // Quebra a tubulação no ponto específico, visto que é necessário dois pontos para colocar a luva
+                                                    cn1 = Doc.Document.GetElement(PlumbingUtils.BreakCurve(Doc.Document, tb.Id, quebra));
+
+                                                    // Pega o conector mais distante na tubulação
+                                                    var connectors = GetClosestConnector(cn1, tb);
+
+                                                    if (connectors != null && connectors.Count > 1)
                                                     {
-                                                        XYZ quebra = ponto1.Add(pInicial.Multiply(comp * 3.281));
+                                                        FamilyInstance uniaoCriada = Doc.Document.Create.NewUnionFitting(connectors.First(), connectors.Last());
 
-                                                        // Quebra a tubulação no ponto específico, visto que é necessário dois pontos para colocar a luva
-                                                        cn1 = Doc.Document.GetElement(PlumbingUtils.BreakCurve(Doc.Document, tb.Id, quebra));
-
-                                                        // Pega o conector mais distante na tubulação
-                                                        var connectors = GetClosestConnector(cn1, tb);
-
-                                                        if (connectors != null && connectors.Count > 1)
+                                                        if (uniaoCriada != null)
                                                         {
-                                                            FamilyInstance uniaoCriada = Doc.Document.Create.NewUnionFitting(connectors.First(), connectors.Last());
-
-                                                            if (uniaoCriada != null)
-                                                            {
-                                                                // Caso precise fazer algo com a união criada, tratar aqui
-                                                            }
+                                                            // Caso precise fazer algo com a união criada, tratar aqui
                                                         }
                                                     }
                                                 }
@@ -918,35 +900,6 @@ namespace ComandosRevit
 
             }
         }
-
-
-        private static Connector FindConnector(Pipe pipe, XYZ conXYZ)
-        {
-            ConnectorSet conns = pipe.ConnectorManager.Connectors;
-            foreach (Connector conn in conns)
-            {
-                if (conn.Origin.IsAlmostEqualTo(conXYZ))
-                {
-                    return conn;
-                }
-            }
-            return null;
-        }
-        private static Connector FindConnectedTo(Pipe pipe, XYZ conXYZ)
-        {
-            Connector connItself = FindConnector(pipe, conXYZ);
-            ConnectorSet connSet = connItself.AllRefs;
-            foreach (Connector conn in connSet)
-            {
-                if (conn.Owner.Id.IntegerValue != pipe.Id.IntegerValue &&
-                    conn.ConnectorType == ConnectorType.End)
-                {
-                    return conn;
-                }
-            }
-            return null;
-        }
-
 
         public string GetName()
         {

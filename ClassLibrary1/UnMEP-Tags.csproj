@@ -73,6 +73,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(ProjectDir)\bin\Debug\UnMEP-Tags.dll" "C:\ProgramData\Autodesk\Revit\Addins\2020"</PostBuildEvent>
+    <PostBuildEvent>copy "$(ProjectDir)\bin\Debug\UnMEP-Tags.dll" "C:\ProgramData\Autodesk\Revit\Addins\2020\Tags"</PostBuildEvent>
   </PropertyGroup>
 </Project>
