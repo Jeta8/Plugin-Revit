@@ -1,90 +1,58 @@
 ﻿
 using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Mechanical;
-using Autodesk.Revit.DB.Plumbing;
 using Autodesk.Revit.UI;
-using SegundaBiblioteca;
+using ComandosRevit;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml.Linq;
-using Line = Autodesk.Revit.DB.Line;
 
-namespace ClassLibrary1
+namespace Janelas
 {
     /// <summary>
-    /// Interação lógica para UserControl2.xaml
+    /// Interação lógica para JanelaPrincipal.xaml
     /// </summary>
-    /// 
-
-
-    public partial class UserControl2 : Window
+    public partial class JanelaPrincipal : Window
     {
         UIDocument Doc;
-        
+
         public static string NomeTagSelecionada = "";
         public static string NomeTagConexaoSelecionada = "";
         public static string NomeTagAcessorioSelecionado = "";
         public static string NomeTagPecaSelecionada = "";
         public static string DirecaoTagSelecionada = "";
-
-
-        
-
         public static string TipoTagSelecionada = "";
         public static string TipoTagConexaoSelecionada = "";
         public static string TipoTagAcessorioSelecionado = "";
         public static string TipoTagPecaSelecionado = "";
-
         public static string FamiliaLuvaSelecionada = "";
-
+        public static string SistemaAlvo = "";
 
         public static double TamanhoLinhaTag = 1.5;
 
-        public static string SistemaAlvo = ""; 
-
-
-        //Constructor
-        public UserControl2()
-        {           
+        public JanelaPrincipal()
+        {
         }
-        
-    
-        public UserControl2(UIDocument doc)
+
+        public JanelaPrincipal(UIDocument doc)
         {
             InitializeComponent();
-            Doc = doc;           
-            VerificarSistemas();      
+            Doc = doc;
+
+            VerificarSistemas();
         }
 
         public void VerificarSistemas()
         {
-            //View3D active3dView = Doc.Document.ActiveView as View3D;
-            //active3dView.SaveOrientationAndLock();
-
-
-
             // Coleções que armazenam as tubulações e tags do projeto do usuário
 
             //Tubulações
             ICollection<Element> tubulacoes =
                  new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
+
             ICollection<Element> identificadores =
                  new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
 
@@ -108,23 +76,12 @@ namespace ClassLibrary1
             ICollection<Element> luvasT =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
 
-
-
             IList<string> NomesAdicionados = new List<string>();
-
             IList<string> TagsAdicionados = new List<string>();
-
-
             IList<string> TagsConexoesAdicionados = new List<string>();
-
-
             IList<string> TagsAcessoriosAdicionados = new List<string>();
-
             IList<string> TagsPecasAdicionados = new List<string>();
-
             IList<string> LuvasAdicionadas = new List<string>();
-
-
 
             foreach (Element i in tubulacoes)
             {
@@ -167,6 +124,7 @@ namespace ClassLibrary1
                         {
                             continue;
                         }
+
                         else
                         {
                             ComboListaTagsConexoes.Items.Add(k.AsString());
@@ -185,15 +143,8 @@ namespace ClassLibrary1
                 {
                     if (!TagsAcessoriosAdicionados.Contains(d.AsString()))
                     {
-                        if (ComboListaTagsAcessorios.Items.Contains(d.AsString()))
-                        {
-                            continue;
-                        }
-                        else 
-                        {
                         ComboListaTagsAcessorios.Items.Add(d.AsString());
                         TagsAcessoriosAdicionados.Add(d.AsString());
-                        }
                     }
                 }
             }
@@ -212,31 +163,33 @@ namespace ClassLibrary1
                 }
             }
 
-            foreach (Element t in luvasT)
+            foreach (Element cn in luvasT)
             {
-                
-                //var getCon = TagsPecasHidro.GetConnectors(t);
                 try
                 {
-                    if (t.GetType().ToString().Equals("Autodesk.Revit.DB.FamilyInstance"))
+                    if (cn is FamilySymbol)
                     {
-                        FamilyInstance p = t as FamilyInstance;
-                        MechanicalFitting y = p.MEPModel as MechanicalFitting;
+                        dynamic simboloFamilia = cn;
+                        Family Familia = simboloFamilia.Family;
 
-                        if (y.PartType == PartType.Union)
+                        if (Familia != null)
                         {
-                            Parameter f = t.get_Parameter(BuiltInParameter.ELEM_FAMILY_PARAM);
-                            if (!LuvasAdicionadas.Contains(f.AsValueString()))
+                            Parameter tipoParte = Familia.get_Parameter(BuiltInParameter.FAMILY_CONTENT_PART_TYPE);
+
+                            if (tipoParte != null && tipoParte.AsValueString() != null)
                             {
-                                ComboListaLuvasMaterial.Items.Add(f.AsValueString());
-                                LuvasAdicionadas.Add(f.AsValueString());
+                                if ((tipoParte.AsValueString().Contains("União") || tipoParte.AsValueString().Contains("Union")) && !LuvasAdicionadas.Contains(tipoParte.AsValueString()))
+                                {
+                                    ComboListaLuvasMaterial.Items.Add(simboloFamilia.FamilyName);
+                                    LuvasAdicionadas.Add(simboloFamilia.FamilyName);
+                                }
                             }
                         }
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                }  
+                }
             }
         }
 
@@ -244,7 +197,7 @@ namespace ClassLibrary1
         {
             if (ComboListaSistema.SelectedIndex == -1)
             {
-                System.Windows.Forms.MessageBox.Show("Selecione o sistema desejado!", "Erro", MessageBoxButtons.OK);
+                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
                 return;
             }
             ICollection<Element> tubulacoes =
@@ -268,7 +221,7 @@ namespace ClassLibrary1
                             if (ValorComprimento >= ValorUsuarioTubo)
                             {
                                 SistemaSelecionado.Add(t.Id);
-                               
+
                             }
                         }
                     }
@@ -312,7 +265,7 @@ namespace ClassLibrary1
         {
             if (ComboListaSistema.SelectedIndex == -1)
             {
-                System.Windows.Forms.MessageBox.Show("Selecione o sistema desejado!", "Erro",  MessageBoxButtons.OK);
+                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
                 return;
             }
             ComandoTags.GetInstance.cTags.Raise();
@@ -320,7 +273,9 @@ namespace ClassLibrary1
 
         private void ComboListaTags_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Aqui adiciona ao combobox os tipos de tags no projeto do usuário        
+            // Aqui adiciona ao combobox os tipos de tags no projeto do usuário
+            if (ComboListaTags.SelectedIndex == -1)
+                return;
 
             NomeTagSelecionada = ComboListaTags.SelectedItem.ToString();
 
@@ -396,7 +351,7 @@ namespace ClassLibrary1
         {
             if (ComboListaSistema.SelectedIndex == -1)
             {
-                System.Windows.Forms.MessageBox.Show("Selecione o sistema desejado!", "Erro",  MessageBoxButtons.OK);
+                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
                 return;
             }
             TagsConexoes.GetInstance.TagsConex.Raise();
@@ -405,7 +360,9 @@ namespace ClassLibrary1
         private void ComboListaTagsConexoes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Aqui adiciona ao combobox os tipos de tags no projeto do usuário
-           
+            if (ComboListaTagsConexoes.SelectedIndex == -1)
+                return;
+
             NomeTagConexaoSelecionada = ComboListaTagsConexoes.SelectedItem.ToString();
 
 
@@ -477,7 +434,7 @@ namespace ClassLibrary1
         {
             if (ComboListaSistema.SelectedIndex == -1)
             {
-                System.Windows.Forms.MessageBox.Show("Selecione o sistema desejado!", "Erro", MessageBoxButtons.OK);
+                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
                 return;
             }
             TagsAcessorios.GetInstance.TagsAcess.Raise();
@@ -527,7 +484,6 @@ namespace ClassLibrary1
                         {
                             if (ComboListaInstanciasAcessorios.Items.Contains(instanciaacessorio.Name))
                                 continue;
-
                             if (!ComboListaInstanciasAcessorios.Items.Contains(instanciaacessorio.Name))
                             {
                                 ComboListaInstanciasAcessorios.Items.Add(instanciaacessorio.Name);
@@ -619,7 +575,7 @@ namespace ClassLibrary1
         {
             if (ComboListaSistema.SelectedIndex == -1)
             {
-                System.Windows.Forms.MessageBox.Show("Selecione o sistema desejado!", "Erro", MessageBoxButtons.OK);
+                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
                 return;
             }
 
@@ -646,26 +602,6 @@ namespace ClassLibrary1
         private void ComboListaLuvasMaterial_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             FamiliaLuvaSelecionada = ComboListaLuvasMaterial.SelectedItem.ToString();
-
-            ICollection<Element> luvas =
-                new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
-
-            foreach (Element b in luvas)
-            {
-                try
-                {
-                    dynamic luva = b;
-                    dynamic isFamilyInstanceLuvas = luva.Family;
-
-                    if (isFamilyInstanceLuvas == null)
-                    {
-                        luvas.Remove(b);
-                    }
-                }
-                catch (Exception)
-                {
-                }
-            }
         }
 
         private void InputComprimentoLuva_TextChanged(object sender, TextChangedEventArgs e)
@@ -700,13 +636,13 @@ namespace ClassLibrary1
         {
             if (ComboListaSistema.SelectedIndex == -1)
             {
-                System.Windows.Forms.MessageBox.Show("Selecione o sistema desejado!", "Erro", MessageBoxButtons.OK);
+                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
                 return;
             }
             AdicLuvas.GetInstance.AdicionarLuvas.Raise();
         }
 
-        
+
         private void ComboListaSistema_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SistemaAlvo = ComboListaSistema.SelectedItem.ToString();

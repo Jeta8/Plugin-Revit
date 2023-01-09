@@ -1,26 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Autodesk.Revit.ApplicationServices;
-using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.UI.Selection;
-using Autodesk.Revit.DB.Architecture;
-using ClassLibrary1;
-using System.Windows;
-using System.Windows.Controls;
 using Autodesk.Revit.DB.Plumbing;
 using System.Collections.ObjectModel;
-using System.Linq.Expressions;
-using System.Windows.Ink;
-using Autodesk.Revit.DB.Electrical;
-using System.Diagnostics;
-using System.Windows.Forms;
+using Janelas;
+using System.Linq;
+using System.Windows.Controls;
 
-namespace SegundaBiblioteca
+namespace ComandosRevit
 {
     public class ComandoTags : IExternalEventHandler
     {
@@ -45,9 +33,9 @@ namespace SegundaBiblioteca
         }
 
         public void Execute(UIApplication app)
-        { // Comando que adiciona as tags ao Revit
+        {
+            // Comando que adiciona as tags ao Revit
             UIDocument Doc = app.ActiveUIDocument;
-
 
             // Coleções que armazenam as tubulações e tags do projeto do usuário
             ICollection<Element> tubulacoes =
@@ -55,8 +43,6 @@ namespace SegundaBiblioteca
 
             ICollection<Element> identificadores =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
-
-
 
             Element TagSelecionada = null;
 
@@ -74,15 +60,11 @@ namespace SegundaBiblioteca
 
                         if (fmanager != null)
                         {
-                            if (fmanager.FamilyName.Equals(UserControl2.NomeTagSelecionada))
+                            if (fmanager.Name.Equals(JanelaPrincipal.TipoTagSelecionada))
                             {
-                                if (fmanager.Name.Equals(UserControl2.TipoTagSelecionada))
-                                {
-                                    TagSelecionada = g;
-                                    break;
-                                }
+                                TagSelecionada = g;
+                                break;
                             }
-
                         }
                     }
                 }
@@ -103,7 +85,7 @@ namespace SegundaBiblioteca
                     {
                         double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
 
-                        if (ValorComprimento >= UserControl2.ValorUsuarioTubo)
+                        if (ValorComprimento >= JanelaPrincipal.ValorUsuarioTubo)
                         {
                             var refe = new Reference(item);
 
@@ -130,7 +112,7 @@ namespace SegundaBiblioteca
                                 Parameter Sistemas = item.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
                                 if (Sistemas != null && Sistemas.AsValueString() != null)
                                 {
-                                    if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
+                                    if (Sistemas.AsValueString().Equals(JanelaPrincipal.SistemaAlvo))
                                     {
                                         IndependentTag tag = IndependentTag.Create(
                                         Doc.Document, TagSelecionada.Id, Doc.ActiveView.Id, refe,
@@ -146,7 +128,7 @@ namespace SegundaBiblioteca
                                 t.Commit();
 
                             }
-                            catch (Exception er)
+                            catch (Exception)
                             {
                                 continue;
                             }
@@ -163,72 +145,6 @@ namespace SegundaBiblioteca
         public string GetName()
         {
             return "Comando Tags";
-        }
-    }
-
-    public class ComandoLimpeza : IExternalEventHandler
-    {
-        public ExternalEvent LimpezaTags;
-
-        // Constructor
-        private ComandoLimpeza()
-        {
-        }
-
-        private static readonly ComandoLimpeza _instanceLimpeza = new ComandoLimpeza();
-        public static ComandoLimpeza GetInstance
-        {
-            get
-            {
-                return _instanceLimpeza;
-            }
-        }
-
-        // Comando ao Revit para apagar as tags
-        public void Execute(UIApplication app)
-        {
-            var uTag = ComandoTags.TagsDoUnmep;
-            var ConTag = TagsConexoes.TagsConexoesDoUnmep;
-            var AcessTag = TagsAcessorios.TagsAcessoriosDoUnmep;
-            var PecasTag = TagsPecasHidro.TagsPecasDoUnmep;
-
-            if (uTag != null || ConTag != null || AcessTag != null || PecasTag != null)
-            {
-
-                try
-                {
-                    Transaction p = new Transaction(app.ActiveUIDocument.Document, "Limpar Tag");
-                    p.Start();
-                    foreach (ElementId i in uTag)
-                    {
-                        app.ActiveUIDocument.Document.Delete(i);
-                    }
-                    foreach (ElementId o in ConTag)
-                    {
-                        app.ActiveUIDocument.Document.Delete(o);
-                    }
-                    foreach (ElementId u in AcessTag)
-                    {
-                        app.ActiveUIDocument.Document.Delete(u);
-                    }
-                    foreach (ElementId r in PecasTag)
-                    {
-                        app.ActiveUIDocument.Document.Delete(r);
-                    }
-
-                    p.Commit();
-                    uTag.Clear();
-                    ConTag.Clear();
-                    AcessTag.Clear();
-                    PecasTag.Clear();
-                }
-                catch (Exception e) { }
-            }
-        }
-
-        public string GetName()
-        {
-            return "Comando Limpeza";
         }
     }
 
@@ -281,15 +197,11 @@ namespace SegundaBiblioteca
 
                         if (fcmanager != null)
                         {
-                            if (fcmanager.FamilyName.Equals(UserControl2.NomeTagConexaoSelecionada))
+                            if (fcmanager.Name.Equals(JanelaPrincipal.TipoTagConexaoSelecionada))
                             {
-                                if (fcmanager.Name.Equals(UserControl2.TipoTagConexaoSelecionada))
-                                {
-                                    TagConexSelecionada = g;
-                                    break;
-                                }
+                                TagConexSelecionada = g;
+                                break;
                             }
-
                         }
                     }
                 }
@@ -338,7 +250,7 @@ namespace SegundaBiblioteca
                             Parameter Sistemas = itemconex.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
                             if (Sistemas != null && Sistemas.AsValueString() != null)
                             {
-                                if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
+                                if (Sistemas.AsValueString().Equals(JanelaPrincipal.SistemaAlvo))
                                 {
                                     IndependentTag tagConexao = IndependentTag.Create(
                                     Doc.Document, TagConexSelecionada.Id, Doc.ActiveView.Id, refe,
@@ -354,7 +266,7 @@ namespace SegundaBiblioteca
                             t.Commit();
 
                         }
-                        catch (Exception er)
+                        catch (Exception)
                         {
                             continue;
                         }
@@ -417,15 +329,11 @@ namespace SegundaBiblioteca
 
                         if (fcmanager != null)
                         {
-                            if (fcmanager.FamilyName.Equals(UserControl2.NomeTagAcessorioSelecionado))
+                            if (fcmanager.Name.Equals(JanelaPrincipal.TipoTagAcessorioSelecionado))
                             {
-                                if (fcmanager.Name.Equals(UserControl2.TipoTagAcessorioSelecionado))
-                                {
-                                    TagAcessorioSelecionado = fcmanager;
-                                    break;
-                                }
+                                TagAcessorioSelecionado = d;
+                                break;
                             }
-
                         }
                     }
                 }
@@ -458,7 +366,7 @@ namespace SegundaBiblioteca
                                 continue;
                             };
                         }
-                        catch (Exception e) { }
+                        catch (Exception) { }
 
 
                         var refe = new Reference(itemacess);
@@ -484,17 +392,17 @@ namespace SegundaBiblioteca
                             Parameter Sistemas = itemacess.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
                             if (Sistemas != null && Sistemas.AsValueString() != null)
                             {
-                                if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
+                                if (Sistemas.AsValueString().Equals(JanelaPrincipal.SistemaAlvo))
                                 {
-                                    IndependentTag tagAcessorio = IndependentTag.Create(
+                                    IndependentTag tagConexao = IndependentTag.Create(
                                     Doc.Document, TagAcessorioSelecionado.Id, Doc.ActiveView.Id, refe,
                                     true, TagOrientation.Horizontal, PosicaoFinal);
 
-                                    tagAcessorio.LeaderEndCondition = LeaderEndCondition.Free;
-                                    tagAcessorio.LeaderEnd = PosicaoFinal;
-                                    if (tagAcessorio != null)
+                                    tagConexao.LeaderEndCondition = LeaderEndCondition.Free;
+                                    tagConexao.LeaderEnd = PosicaoFinal;
+                                    if (tagConexao != null)
                                     {
-                                        TagsAcessoriosDoUnmep.Add(tagAcessorio.Id);
+                                        TagsAcessoriosDoUnmep.Add(tagConexao.Id);
                                     }
                                 }
                             }
@@ -505,7 +413,7 @@ namespace SegundaBiblioteca
 
 
                         }
-                        catch (Exception er)
+                        catch (Exception)
                         {
                             continue;
                         }
@@ -598,15 +506,11 @@ namespace SegundaBiblioteca
 
                         if (fcmanager != null)
                         {
-                            if (fcmanager.FamilyName.Equals(UserControl2.NomeTagPecaSelecionada))
+                            if (fcmanager.Name.Equals(JanelaPrincipal.TipoTagPecaSelecionado))
                             {
-                                if (fcmanager.Name.Equals(UserControl2.TipoTagPecaSelecionado))
-                                {
-                                    TagPecaSelecionada = d;
-                                    break;
-                                }
+                                TagPecaSelecionada = d;
+                                break;
                             }
-
                         }
                     }
                 }
@@ -639,7 +543,7 @@ namespace SegundaBiblioteca
                                 continue;
                             };
                         }
-                        catch (Exception e) { }
+                        catch (Exception) { }
 
                         var refe = new Reference(itempecas);
 
@@ -665,7 +569,7 @@ namespace SegundaBiblioteca
                                 Parameter Sistemas = itempecas.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
                                 if (Sistemas != null && Sistemas.AsValueString() != null)
                                 {
-                                    if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
+                                    if (Sistemas.AsValueString().Equals(JanelaPrincipal.SistemaAlvo))
                                     {
                                         IndependentTag tagPeca = IndependentTag.Create(
                                             Doc.Document, TagPecaSelecionada.Id, Doc.ActiveGraphicalView.Id, refe,
@@ -676,21 +580,21 @@ namespace SegundaBiblioteca
 
 
 
-                                        if (UserControl2.direcoesNomes == UserControl2.Direcoes.Cima)
+                                        if (JanelaPrincipal.direcoesNomes == JanelaPrincipal.Direcoes.Cima)
                                         {
-                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, (posicConec.Z + UserControl2.TamanhoLinhaTag));
+                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, (posicConec.Z + JanelaPrincipal.TamanhoLinhaTag));
                                         }
-                                        else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Direita)
+                                        else if (JanelaPrincipal.direcoesNomes == JanelaPrincipal.Direcoes.Direita)
                                         {
-                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X + UserControl2.TamanhoLinhaTag, posicConec.Y + UserControl2.TamanhoLinhaTag, posicConec.Z);
+                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X + JanelaPrincipal.TamanhoLinhaTag, posicConec.Y + JanelaPrincipal.TamanhoLinhaTag, posicConec.Z);
                                         }
-                                        else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Baixo)
+                                        else if (JanelaPrincipal.direcoesNomes == JanelaPrincipal.Direcoes.Baixo)
                                         {
-                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, posicConec.Z - UserControl2.TamanhoLinhaTag);
+                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X, posicConec.Y, posicConec.Z - JanelaPrincipal.TamanhoLinhaTag);
                                         }
-                                        else if (UserControl2.direcoesNomes == UserControl2.Direcoes.Esquerda)
+                                        else if (JanelaPrincipal.direcoesNomes == JanelaPrincipal.Direcoes.Esquerda)
                                         {
-                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X - UserControl2.TamanhoLinhaTag, posicConec.Y - UserControl2.TamanhoLinhaTag, posicConec.Z);
+                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X - JanelaPrincipal.TamanhoLinhaTag, posicConec.Y - JanelaPrincipal.TamanhoLinhaTag, posicConec.Z);
                                         }
 
                                         if (tagPeca != null)
@@ -705,7 +609,7 @@ namespace SegundaBiblioteca
                             }
                             t.Commit();
                         }
-                        catch (Exception er)
+                        catch (Exception)
                         {
                             continue;
                         }
@@ -744,14 +648,39 @@ namespace SegundaBiblioteca
             }
         }
 
+        public static ConnectorSet GetConnectors(Element e)
+        {
+            ConnectorSet connectors = null;
 
-        public static List<Connector> GetClosestConnector(Element e1, Element e2)
+            if (e is FamilyInstance)
+            {
+                MEPModel m = ((FamilyInstance)e).MEPModel;
+
+                if (null != m
+                  && null != m.ConnectorManager)
+                {
+                    connectors = m.ConnectorManager.Connectors;
+
+                }
+            }
+            else
+            {
+                if (e is MEPCurve)
+                {
+                    connectors = ((MEPCurve)e)
+                      .ConnectorManager.Connectors;
+                }
+            }
+
+            return connectors;
+        }
+
+        public List<Connector> GetClosestConnector(Element e1, Element e2)
         {
             ConnectorSet connectors1 = null;
             ConnectorSet connectors2 = null;
 
-
-        List<Connector> Conexoes = new List<Connector> { };
+            List<Connector> Conexoes = new List<Connector> { };
 
             if (e1 is FamilyInstance)
             {
@@ -814,21 +743,22 @@ namespace SegundaBiblioteca
             return Conexoes;
         }
 
-
-
-‌
         public void Execute(UIApplication app)
         {
+            int x = 0;
+
             UIDocument Doc = app.ActiveUIDocument;
 
-            ICollection<Element> tubulacoes =
+            // Pega as tubulações e luvas conforme categoria em todo o projeto       
+            ICollection<Element> tubulações =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
 
             ICollection<Element> luvas =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
 
-            Element LuvaSelecionada = null;
+            FamilySymbol LuvaSelecionada = null;
 
+            // Verifica se a luva selecionada existe no projeto
             foreach (Element z in luvas)
             {
                 try
@@ -842,10 +772,10 @@ namespace SegundaBiblioteca
 
                         if (fcmanager != null)
                         {
-
-                            if (fcmanager.FamilyName.Equals(UserControl2.FamiliaLuvaSelecionada))
+                            if (fcmanager.FamilyName.Equals(JanelaPrincipal.FamiliaLuvaSelecionada))
                             {
-                                LuvaSelecionada = z;
+                                // Luva encontrada, guarda o simbolo da familia
+                                LuvaSelecionada = (FamilySymbol)z;
                                 break;
                             }
                         }
@@ -856,82 +786,139 @@ namespace SegundaBiblioteca
                     continue;
                 }
             }
+
+            // Se o simbolo for válido, inicia o processo de colocar as luvas nas tubulações
             if (LuvaSelecionada != null)
             {
-                Transaction j = new Transaction(Doc.Document, "Adicionar Luva na tubulação");
-                j.Start();
+                // Inicia as alterações no documento
+                Transaction t = new Transaction(Doc.Document, "Adicionar Luva na tubulação");
+                t.Start();
 
-                foreach (Element tb in tubulacoes)
+                IList<RoutingPreferenceRule> RegrasAnteriores = new List<RoutingPreferenceRule>();
+
+                // Percorre todas as tubulações do projeto
+                foreach (Element tb in tubulações)
                 {
+                    RegrasAnteriores.Clear();
 
-                    Parameter Comprimento = tb.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
-
-                    if (Comprimento != null)
+                    // Valida se a tubulação é válida e existe no documento
+                    if (tb.IsValidObject && Doc.Document.GetElement(tb.Id) != null)
                     {
-                        double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
-
-                        if (ValorComprimento >= UserControl2.ValorUsuarioLuva)
+                        // Valida se é o tipo é realmente uma tubulação
+                        if (tb is Pipe)
                         {
-                           
-                                LocationCurve c1 = (tb.Location as LocationCurve);
+                            Parameter Comprimento = tb.get_Parameter(BuiltInParameter.CURVE_ELEM_LENGTH);
 
+                            // Parâmetro de comprimento existe na tubulação, faz a leitura e compara o comprimento mínimo determinado pelo usuário
+                            if (Comprimento != null)
+                            {
+                                double ValorComprimento = UnitUtils.Convert(Comprimento.AsDouble(), DisplayUnitType.DUT_DECIMAL_FEET, DisplayUnitType.DUT_METERS);
 
-                                try
+                                if (ValorComprimento >= JanelaPrincipal.ValorUsuarioLuva)
                                 {
-                                 
-
-                                    //  var cf = GetConnectors(tb);
-
-                                    Parameter Sistemas = tb.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-                                    if (Sistemas != null && Sistemas.AsValueString() != null)
+                                    try
                                     {
-                                        if (Sistemas.AsValueString().Equals(UserControl2.SistemaAlvo))
+                                        Parameter Sistemas = tb.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
+
+                                        // Verifica se o sitema é o selecionado pelo usuário
+                                        if (Sistemas != null && Sistemas.AsValueString() != null)
                                         {
-
-                                            var tubo = c1.Curve;
-                                            var startPoint = tubo.GetEndPoint(0);
-                                            var endPoint = tubo.GetEndPoint(1);
-
-                                            XYZ splitpoint = endPoint.Subtract(startPoint).Normalize();
-
-                                            try
+                                            if (Sistemas.AsValueString().Equals(JanelaPrincipal.SistemaAlvo))
                                             {
-                                                for (double userValue = UserControl2.ValorUsuarioLuva; userValue < ValorComprimento; userValue *= 2)
-                                                {
+                                                Pipe p = tb as Pipe;
 
-                                                    XYZ Split = startPoint.Add(splitpoint.Multiply(userValue / 3.281));
-                                                    ElementId luvaColocada = PlumbingUtils.BreakCurve(Doc.Document, tb.Id, Split);
-                                                    var cLv = GetClosestConnector(tb, tb);
-                                                    Doc.Document.Create.NewUnionFitting();
-                                                    
-                                                    if (luvaColocada != null)
+                                                RoutingPreferenceManager routePrefManager = p.PipeType.RoutingPreferenceManager;
+
+                                                // Acessa as preferências de roteamento do tubo
+                                                routePrefManager.PreferredJunctionType = PreferredJunctionType.Tee;
+
+                                                // Verifica a quantidade de regras do tipo união existem nas preferências de roteamento
+                                                int numeroRegras = routePrefManager.GetNumberOfRules(RoutingPreferenceRuleGroupType.Unions);
+
+                                                // Percorre todas as preferências e salva todas na lista RegrasAnteriores
+                                                for (x = 0; x < numeroRegras; x++)
+                                                {
+                                                    RegrasAnteriores.Add(routePrefManager.GetRule(RoutingPreferenceRuleGroupType.Unions, 0));
+
+                                                    // Remove a preferência de roteamento salva conforme o index passado
+                                                    routePrefManager.RemoveRule(RoutingPreferenceRuleGroupType.Unions, 0);
+                                                }
+
+                                                // Cria uma nova única regra de roteamento (familia essa que seria a selecionada pelo usuário no programa)
+                                                // simbolo = FamilySymbol da familia selecionada pelo usuário
+                                                RoutingPreferenceRule newRule = new RoutingPreferenceRule(LuvaSelecionada.Id, "União");
+                                                routePrefManager.AddRule(RoutingPreferenceRuleGroupType.Unions, newRule, 0);
+
+                                                LocationCurve p1 = tb.Location as LocationCurve;
+
+                                                var curve = p1.Curve;
+                                                var ponto1 = curve.GetEndPoint(0);
+                                                var ponto2 = curve.GetEndPoint(1);
+
+                                                XYZ pInicial = ponto2.Subtract(ponto1).Normalize();
+
+                                                Element cn1 = null;
+
+                                                for (double comp = 1; comp <= ValorComprimento; comp++)
+                                                {
+                                                    if (comp < ValorComprimento)
                                                     {
-                                                        LuvasDoUnmep.Add(luvaColocada);
+                                                        XYZ quebra = ponto1.Add(pInicial.Multiply(comp * 3.281));
+
+                                                        // Quebra a tubulação no ponto específico, visto que é necessário dois pontos para colocar a luva
+                                                        cn1 = Doc.Document.GetElement(PlumbingUtils.BreakCurve(Doc.Document, tb.Id, quebra));
+
+                                                        // Pega o conector mais distante na tubulação
+                                                        var connectors = GetClosestConnector(cn1, tb);
+
+                                                        if (connectors != null && connectors.Count > 1)
+                                                        {
+                                                            FamilyInstance uniaoCriada = Doc.Document.Create.NewUnionFitting(connectors.First(), connectors.Last());
+
+                                                            if (uniaoCriada != null)
+                                                            {
+                                                                // Caso precise fazer algo com a união criada, tratar aqui
+                                                            }
+                                                        }
                                                     }
                                                 }
+
+                                                // Volta as alterações no ultimo tubo
+
+                                                // Remove a única regra criada anteriormente
+                                                routePrefManager.RemoveRule(RoutingPreferenceRuleGroupType.Unions, 0);
+
+                                                // Agora precisamos adicionar todas as regras existentes novamente para não alterar nada do usuário
+                                                for (x = 0; x <= RegrasAnteriores.Count; x++)
+                                                {
+                                                    routePrefManager.AddRule(RoutingPreferenceRuleGroupType.Unions, RegrasAnteriores[x], x);
+                                                }
+
                                             }
-                                            catch (Exception er) { continue; }
-
-                                            //PlumbingUtils luvaTubos = PlumbingUtils.ConnectPipePlaceholdersAtTee(Doc.Document,);
-
                                         }
                                     }
-
-
-
-                                   
+                                    catch (Exception)
+                                    {
+                                        continue;
+                                    }
                                 }
-                                catch (Exception er)
-                                {
-                                    continue;
-                                }
-                            
+                            }
                         }
+                        else
+                        {
+                            // Tratar elementos que não são tubulações aqui
+                        }
+
                     }
+
+
                 }
-                j.Commit();
+
+                t.Commit();
+
             }
         }
+
 
         private static Connector FindConnector(Pipe pipe, XYZ conXYZ)
         {
@@ -966,14 +953,4 @@ namespace SegundaBiblioteca
             return "Comando Adicionar Luvas";
         }
     }
-
-    internal class TagsDisponiveis
-    {
-        public void JanelaRevit(object sender, EventArgs e)
-        {
-            return;
-        }
-    }
-
-
 }
