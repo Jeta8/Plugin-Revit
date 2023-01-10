@@ -18,3 +18,6 @@ C:\Users\pc01\OneDrive\Documentos\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\Un
 C:\Users\pc01\OneDrive\Documentos\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UnMEP-Tags.csproj.CoreCompileInputs.cache
 C:\Users\pc01\OneDrive\Documentos\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UnMEP-Tags.dll
 C:\Users\pc01\OneDrive\Documentos\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UnMEP-Tags.pdb
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\JanelaProdutividade.g.cs
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\UnMEP-Tags_MarkupCompile.lref
+C:\Users\muril\OneDrive\Documents\GitHub\Plugin-Revit\ClassLibrary1\obj\Debug\JanelaProdutividade.baml

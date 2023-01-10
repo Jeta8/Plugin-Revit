@@ -19,13 +19,13 @@ namespace Janelas
     {
         UIDocument Doc;
 
-        public static string NomeTagSelecionada = "";
-        public static string NomeTagConexaoSelecionada = "";
+
+       
         public static string NomeTagAcessorioSelecionado = "";
         public static string NomeTagPecaSelecionada = "";
         public static string DirecaoTagSelecionada = "";
-        public static string TipoTagSelecionada = "";
-        public static string TipoTagConexaoSelecionada = "";
+
+     
         public static string TipoTagAcessorioSelecionado = "";
         public static string TipoTagPecaSelecionado = "";
         public static string FamiliaLuvaSelecionada = "";
@@ -47,14 +47,7 @@ namespace Janelas
 
         public void VerificarSistemas()
         {
-            // Coleções que armazenam as tubulações e tags do projeto do usuário
-
-            //Tubulações
-            ICollection<Element> tubulacoes =
-                 new FilteredElementCollector(Doc.Document, Doc.ActiveView.Id).OfCategory(BuiltInCategory.OST_PipeCurves).ToElements();
-
-            ICollection<Element> identificadores =
-                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
+            
 
             //Conexões
 
@@ -76,49 +69,20 @@ namespace Janelas
             ICollection<Element> luvasT =
                 new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeFitting).ToElements();
 
-            IList<string> NomesAdicionados = new List<string>();
-            IList<string> TagsAdicionados = new List<string>();
+          
             IList<string> TagsConexoesAdicionados = new List<string>();
             IList<string> TagsAcessoriosAdicionados = new List<string>();
             IList<string> TagsPecasAdicionados = new List<string>();
             IList<string> LuvasAdicionadas = new List<string>();
 
-            foreach (Element i in tubulacoes)
-            {
-                // Aqui verifica os sistemas / disciplinas que o usuário tem na vista atual
-                Parameter p = i.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
-
-                if (p != null && p.AsValueString() != null)
-                {
-                    if (!NomesAdicionados.Contains(p.AsValueString()))
-                    {
-                        ComboListaSistema.Items.Add(p.AsValueString());
-                        NomesAdicionados.Add(p.AsValueString());
-                    }
-                }
-            }
-
-            foreach (Element g in identificadores)
-            {
-                // Aqui verifica os tipos de tags que o usuário tem em todo o projeto dele
-                Parameter t = g.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME);
-                if (t != null && t.AsString() != null)
-                {
-                    if (!TagsAdicionados.Contains(t.AsString()))
-                    {
-                        ComboListaTags.Items.Add(t.AsString());
-                        TagsAdicionados.Add(t.AsString());
-                    }
-                }
-            }
-
+       
             foreach (Element j in tagsconexoes)
             {
                 // Aqui verifica os tipos de tags que o usuário tem em todo o projeto dele
                 Parameter k = j.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME);
                 if (k != null && k.AsString() != null)
                 {
-                    if (!TagsAdicionados.Contains(k.AsString()))
+                    if (!TagsConexoesAdicionados.Contains(k.AsString()))
                     {
                         if (ComboListaTagsConexoes.Items.Contains(k.AsString()))
                         {
@@ -221,7 +185,6 @@ namespace Janelas
                             if (ValorComprimento >= ValorUsuarioTubo)
                             {
                                 SistemaSelecionado.Add(t.Id);
-
                             }
                         }
                     }
@@ -230,115 +193,10 @@ namespace Janelas
             Doc.Selection.SetElementIds(SistemaSelecionado);
         }
 
-        public static double ValorUsuarioTubo = 0;
+
         public static double ValorUsuarioLuva = 0;
 
-        private void InputComprimento_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            // Aqui o usuário pode escolher o comprimento específico de tubulações que ele deseja selecionar e/ou adicionar as tags
-            if (InputComprimento.Text != "")
-            {
-                try
-                {
-                    ValorUsuarioTubo = Convert.ToDouble(InputComprimento.Text);
-                }
-                catch (Exception)
-                {
-                    ValorUsuarioTubo = 0;
-                    InputComprimento.Text = "";
-                }
-            }
-            else
-            {
-                ValorUsuarioTubo = 0;
-            }
-        }
-
-        private void InputComprimento_PreviewTextInput(object sender, TextCompositionEventArgs e)
-        { // Filtro de caracteres, para só aceitar números
-            Regex regex = new Regex("[^0-9,]+");
-            e.Handled = regex.IsMatch(e.Text);
-        }
-
-        // Tags nas tubulações
-        private void AdicionarTags_Click(object sender, RoutedEventArgs e)
-        {
-            if (ComboListaSistema.SelectedIndex == -1)
-            {
-                TaskDialog.Show("Erro", "Selecione o sistema desejado!", TaskDialogCommonButtons.Ok);
-                return;
-            }
-            ComandoTags.GetInstance.cTags.Raise();
-        }
-
-        private void ComboListaTags_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // Aqui adiciona ao combobox os tipos de tags no projeto do usuário
-            if (ComboListaTags.SelectedIndex == -1)
-                return;
-
-            NomeTagSelecionada = ComboListaTags.SelectedItem.ToString();
-
-            ICollection<Element> identificadores =
-             new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PipeTags).ToElements();
-
-
-            foreach (Element h in identificadores)
-            {
-                try
-                {
-                    dynamic elemento = h;
-                    dynamic isFamilyInstance = elemento.Family;
-
-                    if (isFamilyInstance == null)
-                    {
-                        identificadores.Remove(h);
-                    }
-                }
-                catch (Exception)
-                {
-                }
-            }
-            ComboListaInstancias.Items.Clear();
-            foreach (Element h in identificadores)
-            { // Adiciona as instâncias ( Direção e tamanho da tag )
-                try
-                {
-                    dynamic elemento = h;
-                    dynamic isFamilyInstance = elemento.Family;
-
-                    if (isFamilyInstance != null)
-                    {
-                        FamilySymbol instancia = h as FamilySymbol;
-                        string nomeFamilia = instancia.FamilyName;
-
-                        if (instancia != null && NomeTagSelecionada.Equals(nomeFamilia))
-                        {
-                            if (ComboListaInstancias.Items.Contains(instancia.Name))
-                                continue;
-
-                            if (!ComboListaInstancias.Items.Contains(instancia.Name))
-                            {
-                                ComboListaInstancias.Items.Add(instancia.Name);
-                            }
-                        }
-                    }
-                }
-
-                catch (Exception)
-                {
-                    continue;
-                }
-            }
-        }
-
-        private void ComboListaInstancias_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ComboListaInstancias.SelectedIndex == -1)
-                return;
-
-            TipoTagSelecionada = ComboListaInstancias.SelectedItem.ToString();
-        }
+     
 
         // Limpar Tags
         private void LimparTags_Click(object sender, RoutedEventArgs e)
@@ -643,9 +501,15 @@ namespace Janelas
         }
 
 
-        private void ComboListaSistema_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        public void ComboListaSistema_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SistemaAlvo = ComboListaSistema.SelectedItem.ToString();
+            if (comboSistema != -1)
+            {
+                SistemaAlvo = ComboListaSistema.SelectedItem.ToString();
+            }
+           
+            comboSistema = ComboListaSistema.SelectedIndex;
         }
+        public static int comboSistema = -1;
     }
 }

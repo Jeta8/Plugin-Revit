@@ -12,7 +12,7 @@ using View = Autodesk.Revit.DB.View;
 
 namespace ComandosRevit
 {
-    public class ComandoTags : IExternalEventHandler
+    public class TagsTubulacao : IExternalEventHandler
     {
         public ExternalEvent cTags;
 
@@ -20,13 +20,13 @@ namespace ComandosRevit
         public static ICollection<ElementId> TagsDoUnmep = new Collection<ElementId>();
 
         // Constructor
-        private ComandoTags()
+        private TagsTubulacao()
         {
 
         }
 
-        private static readonly ComandoTags _instance = new ComandoTags();
-        public static ComandoTags GetInstance
+        private static readonly TagsTubulacao _instance = new TagsTubulacao();
+        public static TagsTubulacao GetInstance
         {
             get
             {
@@ -201,14 +201,12 @@ namespace ComandosRevit
                         FamilySymbol fcmanager = g as FamilySymbol;
 
                         if (fcmanager != null)
-                        {
-                          
-                                if (fcmanager.Name.Equals(JanelaPrincipal.TipoTagConexaoSelecionada))
+                        {             
+                             if (fcmanager.Name.Equals(JanelaPrincipal.TipoTagConexaoSelecionada))
                                 {
-                                    TagConexSelecionada = g;
-                                    break;
-                                }
-                            
+                                 TagConexSelecionada = g;
+                                 break;
+                                }                
                         }
                     }
                 }
@@ -269,15 +267,12 @@ namespace ComandosRevit
                                     }
                                 }
                             }
-
                             t.Commit();
-
                         }
                         catch (Exception)
                         {
                             continue;
                         }
-
                     }
                     else
                     {
@@ -344,7 +339,6 @@ namespace ComandosRevit
                                     break;
                                 }
                             }
-
                         }
                     }
                 }

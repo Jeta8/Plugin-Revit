@@ -64,9 +64,16 @@
     <Compile Include="JanelaPrincipal.xaml.cs">
       <DependentUpon>JanelaPrincipal.xaml</DependentUpon>
     </Compile>
+    <Compile Include="JanelaProdutividade.xaml.cs">
+      <DependentUpon>JanelaProdutividade.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Include="JanelaPrincipal.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="JanelaProdutividade.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
