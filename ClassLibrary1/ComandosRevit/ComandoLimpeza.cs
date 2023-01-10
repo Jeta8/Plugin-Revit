@@ -1,6 +1,9 @@
 ﻿using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Net;
 
 namespace ComandosRevit
@@ -31,6 +34,7 @@ namespace ComandosRevit
             var AcessTag = TagsAcessorios.TagsAcessoriosDoUnmep;
             var PecasTag = TagsPecasHidro.TagsPecasDoUnmep;
 
+            ICollection<ElementId> idsParaSeremApagadas = new Collection<ElementId>();
 
 
             if (uTag != null || ConTag != null || AcessTag != null || PecasTag != null)
@@ -48,16 +52,15 @@ namespace ComandosRevit
                         {
                             app.ActiveUIDocument.Document.Delete(i); 
                         }
-
                         catch (Exception)
                         {
                             if (i != null)
                             {
-                                ComandoTags.TagsDoUnmep.Remove(i);
+                                idsParaSeremApagadas.Add(i);
+                                continue;
                             }
                         }
                     }
-
 
                     foreach (ElementId o in ConTag)
                     {
@@ -69,11 +72,11 @@ namespace ComandosRevit
                         {
                             if (o != null)
                             {
-                                TagsConexoes.TagsConexoesDoUnmep.Remove(o);
+                                idsParaSeremApagadas.Add(o);
+                                continue;
                             }
                         }
                     }
-
 
                     foreach (ElementId u in AcessTag)
                     {
@@ -83,7 +86,8 @@ namespace ComandosRevit
                         }
                         catch (Exception)
                         {
-                            TagsAcessorios.TagsAcessoriosDoUnmep.Remove(u);
+                            idsParaSeremApagadas.Add(u);
+                            continue;
                         }
                     }
 
@@ -95,44 +99,30 @@ namespace ComandosRevit
                         }
                         catch (Exception)
                         {
-                            TagsPecasHidro.TagsPecasDoUnmep.Remove(r);
+                            idsParaSeremApagadas.Add(r);
+                            continue;
                         }
                     }
 
 
                     p.Commit();
+                    
+                    foreach( ElementId g in idsParaSeremApagadas)
+                    {
+                        ComandoTags.TagsDoUnmep.Remove(g);
+                        TagsAcessorios.TagsAcessoriosDoUnmep.Remove(g);
+                        TagsConexoes.TagsConexoesDoUnmep.Remove(g);
+                        TagsPecasHidro.TagsPecasDoUnmep.Remove(g);
+
+                    }
+
                     uTag.Clear();
                     ConTag.Clear();
                     AcessTag.Clear();
                     PecasTag.Clear();
                 }
                 catch (Exception)
-                {
-                    //uTag.Clear();
-                    //ConTag.Clear();
-                    //AcessTag.Clear();
-                    //PecasTag.Clear();
-
-
-                    //foreach (ElementId i in uTag)
-                    //{
-                    //    ComandoTags.TagsDoUnmep.Remove(i);
-                    //}
-
-                    //foreach (ElementId o in ConTag)
-                    //{
-                    //    TagsConexoes.TagsConexoesDoUnmep.Remove(o);
-                    //}
-
-                    //foreach (ElementId u in AcessTag)
-                    //{
-                    //    TagsAcessorios.TagsAcessoriosDoUnmep.Remove(u);
-                    //}
-
-                    //foreach (ElementId r in PecasTag)
-                    //{
-                    //    TagsPecasHidro.TagsPecasDoUnmep.Remove(r);
-                    //}
+                {          
                 }
             }
         }

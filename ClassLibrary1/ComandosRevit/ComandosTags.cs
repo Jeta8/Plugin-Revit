@@ -8,6 +8,7 @@ using Janelas;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Forms;
+using View = Autodesk.Revit.DB.View;
 
 namespace ComandosRevit
 {
@@ -491,7 +492,7 @@ namespace ComandosRevit
         public void Execute(UIApplication app)
         {
             UIDocument Doc = app.ActiveUIDocument;
-            View3D activeView3D = app.ActiveUIDocument.ActiveView as View3D;
+            View viewTest = Doc.ActiveGraphicalView;
 
             ICollection<Element> pecas =
               new FilteredElementCollector(Doc.Document).OfCategory(BuiltInCategory.OST_PlumbingFixtures).ToElements();
@@ -574,10 +575,18 @@ namespace ComandosRevit
                                 if (k.Direction == FlowDirectionType.Out)
                                     continue;
 
-                                // eyePosition = X, upDirection = Y, forwardDirection = Z
 
-                                var Viewtest = activeView3D.GetOrientation().EyePosition;
+                                Transform j = Transform.Identity;
+                                j.Origin= viewTest.Origin;
+                                j.BasisX = viewTest.RightDirection;
+                                j.BasisY = viewTest.UpDirection;
+                                j.BasisZ = viewTest.ViewDirection;
+
+                                Transform novaPosic = j.Inverse;
+                                XYZ posicaoOriginal = k.Origin;
+                                XYZ posicaoNaView = novaPosic.OfPoint(posicaoOriginal);
                                 var posicConec = k.Origin;
+
 
                                 Parameter Sistemas = itempecas.get_Parameter(BuiltInParameter.RBS_PIPING_SYSTEM_TYPE_PARAM);
                                 if (Sistemas != null && Sistemas.AsValueString() != null)
@@ -599,7 +608,7 @@ namespace ComandosRevit
                                         }
                                         else if (JanelaPrincipal.direcoesNomes == JanelaPrincipal.Direcoes.Direita)
                                         {
-                                            tagPeca.TagHeadPosition = new XYZ(posicConec.X + JanelaPrincipal.TamanhoLinhaTag, posicConec.Y + JanelaPrincipal.TamanhoLinhaTag, posicConec.Z);
+                                            tagPeca.TagHeadPosition = new XYZ( posicConec.X + JanelaPrincipal.TamanhoLinhaTag , posicConec.Y, posicConec.Z );
                                         }
                                         else if (JanelaPrincipal.direcoesNomes == JanelaPrincipal.Direcoes.Baixo)
                                         {
